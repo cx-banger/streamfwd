@@ -80,7 +80,7 @@ function closeFullPlayer() {
 function updateMiniPlayer(title, artist, thumb) {
   miniPlayerTitle.textContent = title;
   miniPlayerArtist.textContent = artist;
-  miniPlayerThumb.src = thumb || 'https://github.com/CX-Banger/mt2/blob/main/assets/disque.jpg?raw=true';
+  miniPlayerThumb.src = thumb || 'https://github.com/CX-Banger/unordered_set/blob/main/assets/disque.jpg?raw=true';
   showMiniPlayer();
 
   if ('mediaSession' in navigator) {
@@ -89,7 +89,7 @@ function updateMiniPlayer(title, artist, thumb) {
       artist: artist,
       album: 'Muzikly',
       artwork: [
-        { src: thumb || 'https://github.com/CX-Banger/mt2/blob/main/assets/disque.jpg?raw=true', sizes: '512x512', type: 'image/jpeg' }
+        { src: thumb || 'https://github.com/CX-Banger/unordered_set/blob/main/assets/disque.jpg?raw=true', sizes: '512x512', type: 'image/jpeg' }
       ]
     });
 
@@ -117,7 +117,7 @@ function updateFullPlayerUI() {
   const track = window.playlist[window.currentIndex];
   fullPlayerTitle.textContent = track.title;
   fullPlayerArtist.textContent = track.artist;
-  fullPlayerCover.src = track.thumb || 'https://github.com/CX-Banger/mt2/blob/main/assets/disque.jpg?raw=true';
+  fullPlayerCover.src = track.thumb || 'https://github.com/CX-Banger/unordered_set/blob/main/assets/disque.jpg?raw=true';
 
   loadCanvas(track);
 
