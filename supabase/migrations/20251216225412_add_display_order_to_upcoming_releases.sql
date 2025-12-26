@@ -34,12 +34,16 @@ WHERE title = 'À venir bientôt' AND artist_name = 'Eilynn';
 
 UPDATE upcoming_releases 
 SET display_order = 4 
-WHERE title = 'Summer Vibes' AND artist_name = 'Sara';
+WHERE title = 'Summer Vibes' AND artist_name = 'Phil Wickham, Brandon Lake, Hulvey';
 
 UPDATE upcoming_releases 
 SET display_order = 5 
-WHERE title = 'Pas assez' AND artist_name = 'Raph';
+WHERE title = 'Pas assez' AND artist_name = 'Conozco';
 
 UPDATE upcoming_releases 
 SET display_order = 6 
-WHERE title = 'True (Official Audio)' AND artist_name = 'Elihem';
+WHERE title = 'True (Official Audio)' AND artist_name = 'Hulvey';
+
+UPDATE upcoming_releases 
+SET display_order = 7 
+WHERE title = 'True (Official Audio)' AND artist_name = 'Conozco, Nehiyr';
