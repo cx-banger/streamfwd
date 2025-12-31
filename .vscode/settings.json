@@ -1,0 +1,12 @@
+// .vscode/settings.json
+{
+  "liveServer.settings.port": 5500,
+  "liveServer.settings.root": "/",
+  "liveServer.settings.ignoreFiles": [
+    ".vscode/**",
+    "**/*.scss",
+    "**/*.ts"
+  ],
+  "editor.formatOnSave": true,
+  "files.autoSave": "onFocusChange"
+}
