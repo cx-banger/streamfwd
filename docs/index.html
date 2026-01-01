@@ -16,9 +16,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <!-- CSS -->
-  <script type="module" crossorigin src="/streamfwd/assets/index-JKhJiOUW.js"></script>
-  <link rel="stylesheet" crossorigin href="/streamfwd/assets/index-CwQR8v4J.css">
-  <link rel="stylesheet" crossorigin href="/streamfwd/wrapped/style_wrapped.css">
+  <link rel="stylesheet" href="src/style.css" />
+  <link rel="stylesheet" href="src/upcoming.css" />
+  <link rel="stylesheet" href="wrapped/style_wrapped.css" />  
 </head>
 <body>
   <div class="app">
@@ -72,8 +72,8 @@
         </br>
         </br>
         </br>
-        <button class="nav-btn" onclick="window.location.href= '#'"> CGU</button> 
-                
+        <button class="nav-btn" onclick="window.location.href= '#'"></i> CGU</button> 
+        
   <!--  <button class="nav-btn" onclick="window.location.href= 'https://cx-banger.github.io/unordered_set/'"><i class="fa-solid fa-book-bible"></i> Verset du jour</button> -->
       </nav>
     </aside>
@@ -103,6 +103,13 @@
      Remplace l'ancien SVG Discogs
      Image : MacOSCalendar.png
      =========================  -->
+  <div class="hero-art" id="heroArt" style="cursor: pointer;">
+    <img
+    src="https://raw.githubusercontent.com/CX-Banger/streamfwd/main/_data/MacOSCalendar.png"
+    alt="MacOS Calendar" >
+   </div>
+<!-- ===== FIN HERO ART ===== -->
+            
             <div class="hero-meta">
               <strong>À la une</strong>
               <h2 id="featuredTitle">Kill My Flesh</h2>
@@ -332,5 +339,7 @@
   </div>
 
   <!-- JS -->
+  <script type="module" src="src/script.js"></script>
+  <script type="module" src="src/player.js"></script>
 </body>
 </html>
