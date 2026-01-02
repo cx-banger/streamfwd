@@ -993,6 +993,16 @@ body {
   gap: 16px;
   margin-top: 14px;
 }
+
+
+.search-results:not(.hidden) {
+  display: grid;
+}
+
+.search-results.hidden {
+  display: none;
+}
+
 .track-card {
   background: #1a1a1a;
   border-radius: 8px;
