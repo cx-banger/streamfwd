@@ -186,6 +186,43 @@
         <section id="page-search" class="page">
           <h2>🔍 Recherche</h2>
           <input id="searchInput" placeholder="Rechercher un son (min 2 lettres)..." />
+
+          <!-- Default search view (before search) -->
+          <div id="searchDefaultView">
+            <!-- Mood categories -->
+            <div class="search-moods">
+              <button class="mood-chip">Gospel</button>
+              <button class="mood-chip">Worship</button>
+              <button class="mood-chip">Louange</button>
+              <button class="mood-chip">Rap</button>
+            </div>
+
+            <!-- Recently added section -->
+            <div class="search-section">
+              <div class="section-header">
+                <h3>Récemment ajouté</h3>
+              </div>
+              <div id="listenAgainGrid" class="search-horizontal-grid"></div>
+            </div>
+
+            <!-- Artists section -->
+            <div class="search-section">
+              <div class="section-header">
+                <h3>Artistes</h3>
+              </div>
+              <div id="artistsCircleGrid" class="search-horizontal-grid"></div>
+            </div>
+
+            <!-- Mixed for you section -->
+            <div class="search-section">
+              <div class="section-header">
+                <h3>Sélection pour vous</h3>
+              </div>
+              <div id="mixedForYouGrid" class="search-horizontal-grid"></div>
+            </div>
+          </div>
+
+          <!-- Search results (when searching) -->
           <div id="searchResults" class="grid search-results"></div>
         </section>
 
