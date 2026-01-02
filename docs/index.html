@@ -184,47 +184,229 @@
 
         <!-- Search -->
         <section id="page-search" class="page">
-          <h2>🔍 Recherche</h2>
-          <input id="searchInput" placeholder="Rechercher un son (min 2 lettres)..." />
 
-          <!-- Default search view (before search) -->
-          <div id="searchDefaultView">
-            <!-- Mood categories -->
-            <div class="search-moods">
-              <button class="mood-chip">Gospel</button>
-              <button class="mood-chip">Worship</button>
-              <button class="mood-chip">Louange</button>
-              <button class="mood-chip">Rap</button>
-            </div>
+  <style>
+    /* ===============================
+       SEARCH – BASE STYLES
+    =============================== */
 
-            <!-- Recently added section -->
-            <div class="search-section">
-              <div class="section-header">
-                <h3>Récemment ajouté</h3>
-              </div>
-              <div id="listenAgainGrid" class="search-horizontal-grid"></div>
-            </div>
+    #searchDefaultView {
+      display: block;
+    }
 
-            <!-- Artists section -->
-            <div class="search-section">
-              <div class="section-header">
-                <h3>Artistes</h3>
-              </div>
-              <div id="artistsCircleGrid" class="search-horizontal-grid"></div>
-            </div>
+    #searchDefaultView.hidden {
+      display: none;
+    }
 
-            <!-- Mixed for you section -->
-            <div class="search-section">
-              <div class="section-header">
-                <h3>Sélection pour vous</h3>
-              </div>
-              <div id="mixedForYouGrid" class="search-horizontal-grid"></div>
-            </div>
-          </div>
+    /* Mood chips */
+    .search-moods {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin: 12px 0 16px;
+      scrollbar-width: none;
+    }
 
-          <!-- Search results (when searching) -->
-          <div id="searchResults" class="grid search-results"></div>
-        </section>
+    .search-moods::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mood-chip {
+      background: #282828;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .mood-chip:hover {
+      background: #3e3e3e;
+    }
+
+    /* Sections */
+    .search-section {
+      margin-top: 28px;
+    }
+
+    .search-section:first-of-type {
+      margin-top: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+      color: #fff;
+    }
+
+    /* Horizontal grid */
+    .search-horizontal-grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scroll-behavior: smooth;
+    }
+
+    /* Album cards */
+    .search-album-card {
+      width: 160px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .search-album-card:hover {
+      transform: scale(1.02);
+    }
+
+    .search-album-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0,0,0,.3);
+    }
+
+    .search-album-info {
+      padding: 12px 4px;
+    }
+
+    .search-album-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .search-album-artist {
+      font-size: 12px;
+      color: #aaa;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Artist cards */
+    .search-artist-card {
+      width: 160px;
+      flex-shrink: 0;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .search-artist-card:hover {
+      transform: scale(1.02);
+    }
+
+    .search-artist-card img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.3);
+    }
+
+    .search-artist-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Search results */
+    .search-results {
+      display: grid;
+    }
+
+    .search-results.hidden {
+      display: none;
+    }
+
+    /* ===============================
+       RESPONSIVE
+    =============================== */
+
+    @media (max-width: 768px) {
+      .section-header h3 {
+        font-size: 16px;
+      }
+
+      .mood-chip {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      .search-album-card,
+      .search-artist-card {
+        width: 120px;
+      }
+
+      .search-album-card img {
+        height: 120px;
+      }
+
+      .search-artist-card img {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+
+  <h2>🔍 Recherche</h2>
+  <input id="searchInput" placeholder="Rechercher un son (min 2 lettres)..." />
+
+  <div id="searchDefaultView">
+    <div class="search-moods">
+      <button class="mood-chip">Gospel</button>
+      <button class="mood-chip">Worship</button>
+      <button class="mood-chip">Louange</button>
+      <button class="mood-chip">Rap</button>
+    </div>
+
+    <div class="search-section">
+      <div class="section-header">
+        <h3>Récemment ajouté</h3>
+      </div>
+      <div id="listenAgainGrid" class="search-horizontal-grid"></div>
+    </div>
+
+    <div class="search-section">
+      <div class="section-header">
+        <h3>Artistes</h3>
+      </div>
+      <div id="artistsCircleGrid" class="search-horizontal-grid"></div>
+    </div>
+
+    <div class="search-section">
+      <div class="section-header">
+        <h3>Sélection pour vous</h3>
+      </div>
+      <div id="mixedForYouGrid" class="search-horizontal-grid"></div>
+    </div>
+  </div>
+
+  <div id="searchResults" class="search-results hidden"></div>
+
+</section>
 
         <!-- Upcoming -->
         <section id="page-upcoming" class="page">
