@@ -1311,7 +1311,7 @@ body {
 
 .full-player-cover-wrapper {
   width: 100%;
-  min-height: 98vh; /* 70vh la hauteur entre le palyer et la partie des parole lyrique */
+  min-height: 100vh; /* 70vh la hauteur entre le palyer et la partie des parole lyrique */
   display: flex;
   flex-direction: column;
   align-items: center;
