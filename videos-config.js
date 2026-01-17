@@ -48,7 +48,7 @@ export const videosConfig = {
     "Zone à danger": "https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/canvas/artiste9/1.mp4",
   },
 
-  "Demo": {
+  "Paguiel": {
     "A la Fontaine": "https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/canvas/artiste10/1.mp4",
     "Combat dans la Lumière": "https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/canvas/artiste10/2.mp4",
   }
