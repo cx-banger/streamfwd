@@ -30,7 +30,7 @@ const artistsConfig = [
   { name: 'Tiim', bgColor: '#3a3a1a', bgColorHover: '#6a6a2a', badges: ['interviewed'] },
   { name: 'Math', bgColor: '#2a3a1a', bgColorHover: '#4a6a2a', badges: ['website-offline'] },
   { name: 'Raph', bgColor: '#3a1a1a', bgColorHover: '#6a2a2a', badges: ['write', 'interviewed'] },
-  { name: 'Demo', bgColor: '#1a1a3a', bgColorHover: '#2a2a6a', badges: ['maintenance', 'maintain_champion'] }
+  { name: 'Paguiel', bgColor: '#1a1a3a', bgColorHover: '#2a2a6a', badges: ['maintenance', 'maintain_champion'] }
 ];
 
 const trackTitles = [
