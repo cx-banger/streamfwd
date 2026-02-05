@@ -21,7 +21,7 @@ const SUPABASE_CANVAS_URL = 'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1
 
 /* === Artistes avec couleurs personnalisées === */
 const artistsConfig = [
-  { name: 'NAN', bgColor: '#2a1a1a', bgColorHover: '#4a2a2a', badges: ['yt-artist-channel', 'won_a_competition', 'podcast'] },
+  { name: 'NAN', bgColor: '#2a1a1a', bgColorHover: '#4a2a2a', badges: ['yt-artist-channel', 'won_a_competition'] },
   { name: 'Synaï', bgColor: '#1a2a3a', bgColorHover: '#2a4a6a', badges: ['interviewed', 'write'] },
   { name: 'Elihem', bgColor: '#1a3a2a', bgColorHover: '#2a6a4a', badges: ['podcast', 'write', 'maintenance'] },
   { name: 'Sara', bgColor: '#3a2a1a', bgColorHover: '#6a4a2a', badges: ['interviewed', 'speed'] },
