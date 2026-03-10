@@ -43,7 +43,7 @@ const trackTitles = [
   ['Montres moi', 'Intro', 'Impro Prt1'],
   ['Math 1', 'Math 2', 'Math 3', 'Math 4', 'Math 5'],
   ['Zone à danger', 'Raph2'],
-  ['A la Fontaine', 'Combat dans la Lumière']
+  ['A la Fontaine', 'Combat dans la Lumière', 'Outro-Remix', 'Remix guitare']
 ];
 
 let artists = artistsConfig.map((config, i) => ({
