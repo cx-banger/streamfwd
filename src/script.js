@@ -21,7 +21,7 @@ const SUPABASE_CANVAS_URL = 'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1
 
 /* === Artistes avec couleurs personnalisées === */
 const artistsConfig = [
-  { name: 'NAN', bgColor: '#2a1a1a', bgColorHover: '#4a2a2a', badges: ['yt-artist-channel', 'won_a_competition'] },
+  { name: 'NΛN', bgColor: '#2a1a1a', bgColorHover: '#4a2a2a', badges: ['yt-artist-channel', 'won_a_competition'] },
   { name: 'Synaï', bgColor: '#1a2a3a', bgColorHover: '#2a4a6a', badges: ['interviewed', 'write'] },
   { name: 'Elihem', bgColor: '#1a3a2a', bgColorHover: '#2a6a4a', badges: ['podcast', 'write', 'maintenance'] },
   { name: 'Sara', bgColor: '#3a2a1a', bgColorHover: '#6a4a2a', badges: ['interviewed', 'speed'] },
@@ -36,9 +36,9 @@ const artistsConfig = [
 const trackTitles = [
   ['Olala', 'Obsédé', 'Etoile', 'Parapluie', 'Love Story', 'Bande', 'Epitre Au Monde #1', 'Mieux', 'Alchimie', 'Compassion', 'Génant', 'Techiyá', 'Kesse', 'Psaumes 151', 'Pourquoi', 'Dispo', 'En Tout Temps', 'Génération', 'Favelas', 'Chemin ft Elihem', 'Sans Effet', 'Victoire ft Eilynn'],
   ['YHWH', 'Freestyle Pour Dieu', 'Zinzin', 'Choisir Papa', 'Le Temps', 'Une Question...', 'Papa Yahweh ft Eilynn', 'Saisir les Bases', 'Dessin', 'Cri du Coeur ft Sara', 'Chargeur Plein', 'The King ft Elihem', 'Je t aime ft Sara', 'Muy Bonito ft Eilynn'],
-  ['In God', 'Visé', 'Minimum', 'Can you hear me ?', 'Evidemment', 'The King ft Synaï', 'Chemin ft NAN', 'Kill My Flesh ft Eilynn'],
+  ['In God', 'Visé', 'Minimum', 'Can you hear me ?', 'Evidemment', 'The King ft Synaï', 'Chemin ft NΛN', 'Kill My Flesh ft Eilynn'],
   ['Louange à Mon Dieu', 'Tentation', 'Dis moi ft Eilynn', 'Evangéliser', 'Je t aime ft Synaï', 'Cri du Coeur ft Synaï'],
-  ['Cendrillon', 'Nouveau Départ', 'Victoire ft NAN', 'Ta Présence', 'A chaque jour', 'Je te retrouverai', 'Flame of Life', 'Papa Yahweh ft Synaï', 'Dis moi ft Sara', 'Muy Bonito ft Synaï', 'Sé ou épi mwen', 'Kill My Flesh ft Elihem'],
+  ['Cendrillon', 'Nouveau Départ', 'Victoire ft NΛN', 'Ta Présence', 'A chaque jour', 'Je te retrouverai', 'Flame of Life', 'Papa Yahweh ft Synaï', 'Dis moi ft Sara', 'Muy Bonito ft Synaï', 'Sé ou épi mwen', 'Kill My Flesh ft Elihem'],
   ['Ma Carrière', 'Porter Du Fruit', 'Mourir à moi même', 'Mon Histoire', '10.10.2025'],
   ['Montres moi', 'Intro', 'Impro Prt1'],
   ['Math 1', 'Math 2', 'Math 3', 'Math 4', 'Math 5'],
@@ -85,7 +85,7 @@ async function loadVideosForArtists() {
 /* === Albums list (visuels + quelques sources publiques du second code) === */
 const albums = [
   { title:'Freestyle Pour Dieu', artist:'Synaï', image:'https://i.pinimg.com/236x/2c/23/17/2c2317fb606f8dad772f8b2a63dc1b07.jpg', audio:'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/sons/artiste%202/son2.mp3' },
-  { title:'Obsédé', artist:'NAN(Rap-Gospel)', image:'https://i.pinimg.com/236x/2c/23/17/2c2317fb606f8dad772f8b2a63dc1b07.jpg', audio:'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/sons/artiste%201/son2.mp3' },
+  { title:'Obsédé', artist:'NΛN(Rap-Gospel)', image:'https://i.pinimg.com/236x/2c/23/17/2c2317fb606f8dad772f8b2a63dc1b07.jpg', audio:'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/sons/artiste%201/son2.mp3' },
   { title:'In God', artist:'Elihem', image:'https://i.pinimg.com/236x/2c/23/17/2c2317fb606f8dad772f8b2a63dc1b07.jpg', audio:'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/sons/artiste%203/son1.mp3' },
   { title:'Sara 1', artist:'Sara', image:'https://i.pinimg.com/236x/2c/23/17/2c2317fb606f8dad772f8b2a63dc1b07.jpg', audio:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
   { title:'Cendrillon', artist:'Kalynn', image:'https://github.com/CX-Banger/profile-page-artiste/blob/main/assets/disque.jpg?raw=true', audio:'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/sons/artiste%205/son1.mp3' },
@@ -222,7 +222,7 @@ function renderFeatured(){
     { title: "Muy Bonito ft Eilynn", artist: "Synaï", cover: `${GITHUB_BASE_URL}/op/cv/artiste2/cover14.jpg`, artistIndex: 1, trackIndex: 13 },
     { title: "Kill My Flesh", artist: "Elihem", cover: `${GITHUB_BASE_URL}/op/cv/artiste3/cover8.jpg`, artistIndex: 2, trackIndex: 7 },
     { title: "Je t aime ft Synaï", artist: "Sara", cover: `${GITHUB_BASE_URL}/op/cv/artiste4/cover5.jpg`, artistIndex: 3, trackIndex: 4 },
-    { title: "Sans Effet", artist: "NAN", cover: `${GITHUB_BASE_URL}/op/cv/artiste1/cover21.jpg`, artistIndex: 0, trackIndex: 20 },
+    { title: "Sans Effet", artist: "NΛN", cover: `${GITHUB_BASE_URL}/op/cv/artiste1/cover21.jpg`, artistIndex: 0, trackIndex: 20 },
     { title: "Ma Carrière", artist: "Melohim", cover: `${GITHUB_BASE_URL}/op/cv/artiste6/cover1.jpg`, artistIndex: 5, trackIndex: 0 }
   ];
 
