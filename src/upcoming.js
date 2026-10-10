@@ -354,7 +354,12 @@ function toggleVolume() {
   });
 }
 
-function closeShortsViewer() {
+/* Ferme la vue Sorties si elle est ouverte (ex : bouton retour du navigateur) */
+export function closeUpcomingIfOpen() {
+  if (isInShortsMode) closeShortsViewer({ goHome: false });
+}
+
+function closeShortsViewer({ goHome = true } = {}) {
   isInShortsMode = false;
 
   const viewer = document.getElementById('upcomingShortsViewer');
@@ -372,7 +377,7 @@ function closeShortsViewer() {
 
   currentShortIndex = 0;
 
-  if (window.showPage) {
+  if (goHome && window.showPage) {
     window.showPage('home');
   }
 }

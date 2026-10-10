@@ -1,3 +1,5 @@
+import { showToast } from './ui.js';
+
 const miniPlayer = document.getElementById('miniPlayer');
 const fullPlayer = document.getElementById('fullPlayer');
 const miniPlayerContent = document.getElementById('miniPlayerContent');
@@ -82,6 +84,7 @@ function updateMiniPlayer(title, artist, thumb) {
   miniPlayerArtist.textContent = artist;
   miniPlayerThumb.src = thumb || 'https://github.com/CX-Banger/unordered_set/blob/main/assets/disque.jpg?raw=true';
   showMiniPlayer();
+  updateLikeUI();
 
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -123,6 +126,7 @@ function updateFullPlayerUI() {
 
   updatePlayPauseButtons();
   updateShuffleRepeatButtons();
+  updateLikeUI();
 }
 
 function loadCanvas(track) {
@@ -248,38 +252,7 @@ miniPlayPauseBtn.addEventListener('click', (e) => {
 
 miniLikeBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  const t = window.playlist[window.currentIndex];
-  if (!t) return;
-
-  if (!window.userPlaylists['Sons Likés']) window.userPlaylists['Sons Likés'] = [];
-
-  const alreadyLiked = window.userPlaylists['Sons Likés'].some(
-    song => song.title === t.title && song.artist === t.artist
-  );
-
-  if (alreadyLiked) {
-    miniLikeBtn.querySelector('i').className = 'fas fa-heart';
-    setTimeout(() => {
-      miniLikeBtn.querySelector('i').className = 'far fa-heart';
-    }, 300);
-    return;
-  }
-
-  window.userPlaylists['Sons Likés'].push({
-    title: t.title,
-    artist: t.artist,
-    src: t.src,
-    thumb: t.thumb || ''
-  });
-
-  window.savePlaylists();
-  window.renderPlaylists();
-
-  miniLikeBtn.querySelector('i').className = 'fas fa-heart';
-
-  setTimeout(() => {
-    miniLikeBtn.querySelector('i').className = 'far fa-heart';
-  }, 1500);
+  window.toggleLike(window.playlist[window.currentIndex]);
 });
 
 miniNextBtn.addEventListener('click', (e) => {
@@ -372,38 +345,24 @@ menuPanelClose.addEventListener('click', () => {
 });
 
 menuLikeBtn.addEventListener('click', () => {
-  const t = window.playlist[window.currentIndex];
-  if (!t) return;
-
-  if (!window.userPlaylists['Sons Likés']) window.userPlaylists['Sons Likés'] = [];
-
-  const alreadyLiked = window.userPlaylists['Sons Likés'].some(
-    song => song.title === t.title && song.artist === t.artist
-  );
-
-  if (alreadyLiked) {
-    alert('Déjà dans les Sons Likés !');
-    playerMenuPanel.classList.remove('active');
-    return;
-  }
-
-  window.userPlaylists['Sons Likés'].push({
-    title: t.title,
-    artist: t.artist,
-    src: t.src,
-    thumb: t.thumb || ''
-  });
-
-  window.savePlaylists();
-  window.renderPlaylists();
-
-  menuLikeBtn.querySelector('i').className = 'fas fa-heart';
-
-  setTimeout(() => {
-    menuLikeBtn.querySelector('i').className = 'far fa-heart';
-    playerMenuPanel.classList.remove('active');
-  }, 1500);
+  window.toggleLike(window.playlist[window.currentIndex]);
+  playerMenuPanel.classList.remove('active');
 });
+
+document.getElementById('menuShareBtn')?.addEventListener('click', () => {
+  window.shareCurrentTrack();
+  playerMenuPanel.classList.remove('active');
+});
+
+/* Cœurs du mini-lecteur et du menu : reflètent si le titre en cours est liké */
+function updateLikeUI() {
+  const liked = !!window.isLiked?.(window.playlist[window.currentIndex]);
+  const iconClass = `${liked ? 'fas' : 'far'} fa-heart`;
+  miniLikeBtn.querySelector('i').className = iconClass;
+  miniLikeBtn.classList.toggle('liked', liked);
+  menuLikeBtn.querySelector('i').className = iconClass;
+  menuLikeBtn.querySelector('span').textContent = liked ? 'Retirer des favoris' : 'Ajouter aux favoris';
+}
 
 menuAddToPlaylistBtn.addEventListener('click', () => {
   const t = window.playlist[window.currentIndex];
@@ -412,7 +371,7 @@ menuAddToPlaylistBtn.addEventListener('click', () => {
   const existingPlaylists = Object.keys(window.userPlaylists).filter(pl => pl !== 'Sons Likés');
 
   if (existingPlaylists.length === 0) {
-    alert('Aucune playlist disponible. Créez d\'abord une playlist dans l\'onglet Playlists.');
+    showToast('Crée d\'abord une playlist dans l\'onglet Playlists', { icon: 'fa-circle-info' });
     playerMenuPanel.classList.remove('active');
     return;
   }
@@ -464,7 +423,7 @@ menuAddToPlaylistBtn.addEventListener('click', () => {
       );
 
       if (alreadyExists) {
-        alert(`Ce titre est déjà dans "${plName}"`);
+        showToast(`Déjà dans "${plName}"`, { icon: 'fa-circle-info' });
       } else {
         window.userPlaylists[plName].push({
           title: t.title,
@@ -475,7 +434,7 @@ menuAddToPlaylistBtn.addEventListener('click', () => {
         });
         window.savePlaylists();
         window.renderPlaylists();
-        alert(`Ajouté à "${plName}"`);
+        showToast(`Ajouté à "${plName}"`, { icon: 'fa-plus' });
       }
 
       document.body.removeChild(playlistMenu);
@@ -559,6 +518,14 @@ window.audio.addEventListener('pause', () => {
   if (fullPlayerCanvas && fullPlayerCanvas.src) {
     fullPlayerCanvas.pause();
   }
+});
+
+/* Fichier audio introuvable ou serveur injoignable : on prévient au lieu de rester muet */
+window.audio.addEventListener('error', () => {
+  if (!window.audio.getAttribute('src')) return;
+  isPlaying = false;
+  updatePlayPauseButtons();
+  showToast('Ce titre est indisponible pour le moment', { icon: 'fa-triangle-exclamation', duration: 3500 });
 });
 
 window.audio.addEventListener('ended', () => {
@@ -665,6 +632,8 @@ miniPlayerArtist.style.cursor = 'pointer';
 fullPlayerArtist.style.cursor = 'pointer';
 
 window.updateMiniPlayer = updateMiniPlayer;
+window.openFullPlayer = openFullPlayer;
+window.updateLikeUI = updateLikeUI;
 window.updateFullPlayerUI = updateFullPlayerUI;
 window.showMiniPlayer = showMiniPlayer;
 window.hideMiniPlayer = hideMiniPlayer;

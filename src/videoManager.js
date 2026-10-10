@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient.js';
+import { showToast } from './ui.js';
 
 const SUPABASE_VIDEOS_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/canvas/`;
 
@@ -68,25 +69,30 @@ export async function initVideoManager(artists) {
       btn.addEventListener('click', async () => {
         const artistName = btn.dataset.artist;
         const trackTitle = btn.dataset.track;
-        const input = artistSection.querySelector(`input[data-artist="${artistName}"][data-track="${trackTitle}"]`);
+        const videoTrackItem = btn.closest('.video-track-item');
+        const input = videoTrackItem.querySelector('.video-url-input');
         const videoPath = input.value.trim();
 
         if (!videoPath) {
-          alert('Veuillez entrer un chemin de vidéo valide');
+          showToast('Entre un chemin de vidéo valide', { icon: 'fa-circle-exclamation' });
           return;
         }
 
         const fullUrl = SUPABASE_VIDEOS_URL + videoPath;
-        await saveVideoForTrack(artistName, trackTitle, fullUrl);
+        try {
+          await saveVideoForTrack(artistName, trackTitle, fullUrl);
+        } catch {
+          showToast('Échec de l\'enregistrement (es-tu connecté ?)', { icon: 'fa-circle-exclamation' });
+          return;
+        }
 
-        const videoTrackItem = btn.closest('.video-track-item');
         const existingCheck = videoTrackItem.querySelector('.fa-check-circle');
         if (!existingCheck) {
           const trackInfo = videoTrackItem.querySelector('.track-info');
           trackInfo.insertAdjacentHTML('beforeend', '<i class="fas fa-check-circle" style="color: #1DB954; margin-left: 10px;"></i>');
         }
 
-        alert('Vidéo enregistrée avec succès!');
+        showToast('Vidéo enregistrée');
       });
     });
   });
