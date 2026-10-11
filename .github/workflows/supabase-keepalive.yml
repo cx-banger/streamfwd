@@ -1,0 +1,40 @@
+# Garde le projet Supabase éveillé.
+# Un projet gratuit est mis en pause après 7 jours sans activité :
+# ce robot fait une petite lecture publique (clé anon) chaque jour.
+name: Supabase — garder éveillé
+
+on:
+  schedule:
+    - cron: '17 6 * * *'   # tous les jours vers 6 h 17 (UTC)
+  workflow_dispatch:        # bouton « Run workflow » pour le lancer à la main
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: src/sonsClient.js
+          sparse-checkout-cone-mode: false
+
+      - name: Interroger la base de données et le stockage
+        run: |
+          URL=$(grep -o "SONS_URL = '[^']*'" src/sonsClient.js | cut -d"'" -f2)
+          KEY=$(grep -o "SONS_ANON_KEY = '[^']*'" src/sonsClient.js | cut -d"'" -f2)
+          test -n "$URL" && test -n "$KEY" || { echo "URL ou clé introuvable dans src/sonsClient.js"; exit 1; }
+
+          curl -sS --fail --retry 3 --retry-delay 10 -m 30 -o /dev/null \
+            -w "Base de données : %{http_code}\n" \
+            "$URL/rest/v1/events?select=id&limit=1" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY"
+
+          curl -sS --fail --retry 3 --retry-delay 10 -m 30 -o /dev/null \
+            -w "Stockage : %{http_code}\n" \
+            -X POST "$URL/storage/v1/object/list/sons" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"prefix":"artiste1","limit":1}'
