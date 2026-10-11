@@ -759,3 +759,8 @@ body.events-mode:has(.ev-home) .main, body.events-mode:has(.ev-home) .pages { ba
 
 /* Icône Calendrier : chiffre du jour en gras */
 .ev-bit-d { font-weight: 700 !important; letter-spacing: -0.8px; }
+
+/* Ordinateur : les pastilles « Partout / À proximité » restent alignées sur la colonne centrée */
+@media (min-width: 901px) {
+  .ev-home > .ev-pills { max-width: 960px; margin: 0 auto 18px; padding: 0; }
+}
