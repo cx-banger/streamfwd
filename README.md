@@ -2,7 +2,7 @@
 
 L'appli d'écoute des artistes de ConnexionBanger : gospel, worship et rap chrétien.
 
-**https://cx-banger.github.io/streamfwd/**
+**https://cx-banger.github.io/streamfwd/outils/apercu-mobile.html**
 
 <a href="https://cx-banger.github.io/streamfwd/"><img src=".github/readme/hero.jpg" alt="Muzikly" width="100%"></a>
 
