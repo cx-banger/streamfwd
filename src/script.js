@@ -1110,3 +1110,30 @@ document.addEventListener('DOMContentLoaded', init);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
   window.addEventListener('hashchange', close);
 })();
+
+/* ===== Menu ConnexionBanger (pastille « CB » en haut à droite) =====
+   Plus tard, il deviendra le menu du compte utilisateur. */
+(function setupCbMenu() {
+  const btn = document.getElementById('cbMenuBtn');
+  const menu = document.getElementById('cbMenu');
+  if (!btn || !menu) return;
+  const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.hidden = !menu.hidden;
+    btn.setAttribute('aria-expanded', String(!menu.hidden));
+  });
+  document.addEventListener('click', (e) => { if (!menu.hidden && !menu.contains(e.target)) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  menu.addEventListener('click', (e) => {
+    const item = e.target.closest('a, button');
+    if (!item) return;
+    if (item.dataset.cb === 'share') {
+      shareLink({ title: 'Muzikly', text: 'Écoute les artistes de ConnexionBanger sur Muzikly', url: `${location.origin}${location.pathname}` });
+    }
+    if (item.dataset.cb === 'about') {
+      showToast('Muzikly, par ConnexionBanger : gospel, worship et rap chrétien', { icon: 'info', duration: 4000 });
+    }
+    close();
+  });
+})();

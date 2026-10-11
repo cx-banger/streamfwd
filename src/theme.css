@@ -1662,3 +1662,42 @@ svg.brand-mark { width: 28px; height: 28px; background: none; color: var(--accen
   body.drawer-open { overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .sidebar, .drawer-backdrop { transition: none !important; } }
+
+/* Menu ConnexionBanger (pastille « CB ») */
+.cb-menu-wrap { position: relative; }
+button.avatar-btn { border: none; cursor: pointer; font-family: var(--font); }
+button.avatar-btn:hover { box-shadow: 0 0 0 3px rgba(255, 255, 255, .15); }
+.cb-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 300;
+  width: 270px;
+  padding: 6px 0;
+  border-radius: 12px;
+  background: #282828;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .6);
+}
+.cb-menu[hidden] { display: none; }
+.cb-menu-head { display: flex; align-items: center; gap: 12px; padding: 10px 16px 12px; }
+.cb-menu-head span:last-child { display: flex; flex-direction: column; }
+.cb-menu-head strong { font-size: 15px; font-weight: 600; }
+.cb-menu-head small { font-size: 12px; color: var(--text-2); }
+.cb-menu hr { border: none; border-top: 1px solid var(--line); margin: 6px 0; }
+.cb-menu a, .cb-menu button[role="menuitem"] {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.cb-menu a:hover, .cb-menu button[role="menuitem"]:hover { background: var(--hover); }
+.cb-menu .ms { font-size: 20px; color: var(--text-2); }

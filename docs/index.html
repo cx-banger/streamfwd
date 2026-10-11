@@ -30,8 +30,8 @@
 
   <!-- CSS -->
   <!-- Thème inspiré de YouTube Music : chargé en dernier, il prend le dessus -->
-  <script type="module" crossorigin src="/streamfwd/assets/index-DCTTLPGY.js"></script>
-  <link rel="stylesheet" crossorigin href="/streamfwd/assets/index-xonrRNSm.css">
+  <script type="module" crossorigin src="/streamfwd/assets/index-CBS6Obrx.js"></script>
+  <link rel="stylesheet" crossorigin href="/streamfwd/assets/index-G6HLlUs8.css">
 </head>
 <body>
   <!-- Barre du haut (sur toute la largeur, comme YouTube Music) -->
@@ -54,7 +54,24 @@
     </div>
     <div class="appbar-end">
       <a class="icon-btn" href="https://www.bible.com/fr/verse-of-the-day/" target="_blank" rel="noopener" title="Verset du jour" aria-label="Verset du jour"><span class="ms">menu_book</span></a>
-      <span class="avatar-btn" aria-hidden="true">CB</span>
+      <div class="cb-menu-wrap">
+        <button class="avatar-btn" id="cbMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu ConnexionBanger">CB</button>
+        <div class="cb-menu" id="cbMenu" role="menu" hidden>
+          <div class="cb-menu-head">
+            <span class="avatar-btn" aria-hidden="true">CB</span>
+            <span><strong>ConnexionBanger</strong><small>Muzikly · gospel, worship, rap</small></span>
+          </div>
+          <a role="menuitem" href="#/liked"><span class="ms">favorite</span>Sons likés</a>
+          <a role="menuitem" href="#/playlists"><span class="ms">library_music</span>Bibliothèque</a>
+          <a role="menuitem" href="#/upcoming"><span class="ms">event</span>Événements</a>
+          <hr>
+          <a role="menuitem" href="https://www.bible.com/fr/verse-of-the-day/" target="_blank" rel="noopener"><span class="ms">menu_book</span>Verset du jour</a>
+          <a role="menuitem" href="https://cx-banger.github.io/authd.sdk/" target="_blank" rel="noopener"><span class="ms">upload</span>Upload Music</a>
+          <hr>
+          <button role="menuitem" type="button" data-cb="share"><span class="ms">share</span>Partager Muzikly</button>
+          <button role="menuitem" type="button" data-cb="about"><span class="ms">info</span>À propos de ConnexionBanger</button>
+        </div>
+      </div>
     </div>
   </header>
 
