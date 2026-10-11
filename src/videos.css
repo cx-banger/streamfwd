@@ -272,3 +272,51 @@ body.vd-mode .mini-player { display: none !important; }
   .sh-feed { scroll-behavior: auto; }
   .sh-act.pop .ms { animation: none; }
 }
+
+/* Actions à droite : icônes seules, sans rond noir (ombre légère pour la lisibilité) */
+.sh-act .ms,
+.sh-act:hover .ms {
+  background: none !important;
+  width: 44px;
+  height: 40px;
+  font-size: 32px;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .55));
+}
+.sh-act:hover .ms { transform: scale(1.08); }
+.sh-act .ms { transition: transform .15s; }
+@media (min-width: 901px) {
+  .sh-act, .sh-act .ms { color: var(--text); }
+  .sh-act .ms { filter: none; }
+}
+
+/* Mobile : la vidéo va jusqu'en bas de l'écran, la barre d'onglets devient transparente
+   (icônes seules, avec une ombre pour rester lisibles) */
+@media (max-width: 900px) {
+  .sh-feed {
+    --sh-h: 100vh;
+    --sh-h: 100dvh;
+  }
+  body.vd-mode .bottom-nav {
+    background: transparent !important;
+    border-top: none !important;
+    box-shadow: none !important;
+  }
+  body.vd-mode .bottom-nav .bt {
+    color: rgba(255, 255, 255, .8);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+  }
+  body.vd-mode .bottom-nav .bt .ms { filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .6)); }
+  body.vd-mode .bottom-nav .bt.active { color: #fff; }
+  /* Infos et actions au-dessus des onglets */
+  .sh-actions { bottom: calc(56px + 80px + env(safe-area-inset-bottom)); }
+  .sh-info { bottom: calc(56px + 16px + env(safe-area-inset-bottom)); }
+  /* Dégradé du bas un peu plus haut pour que textes et onglets restent lisibles */
+  .sh-shade {
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, .45) 0%, transparent 18%),
+      linear-gradient(0deg, rgba(0, 0, 0, .8) 0%, rgba(0, 0, 0, .35) 28%, transparent 50%);
+  }
+}
+
+/* Photo de l'artiste (colonne de droite) : sans contour blanc */
+.sh-avatar img { border: none; box-shadow: 0 2px 8px rgba(0, 0, 0, .45); }
