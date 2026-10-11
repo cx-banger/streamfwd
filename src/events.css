@@ -933,3 +933,9 @@ body.events-mode:has(.ev-home) .main, body.events-mode:has(.ev-home) .pages { ba
   .tr-lines span:last-child { padding-right: 8px; }
   .tr-chev { margin: 0 8px; }
 }
+
+/* QR code aux couleurs du ticket : fond gris des textes secondaires, modules gris foncé
+   (sens normal foncé sur clair : lisible par tous les lecteurs de QR code) */
+.ev-ticket-qr { border-radius: 6px; }
+.ev-ticket-qr .qr-bg { fill: #a3a2a7; }
+.ev-ticket-qr .qr-fg { fill: #3a3a3c; }
