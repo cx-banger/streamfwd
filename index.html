@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@600;700;800&family=Google+Sans+Flex:wght@400;500;600;700&family=Inter+Tight:wght@800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&icon_names=add,add_circle,airplay,album,apps,arrow_back,auto_awesome,calendar_today,check,check_circle,chevron_left,chevron_right,close,confirmation_number,delete,error,event,event_available,event_busy,expand_less,expand_more,explore,fast_forward,fast_rewind,favorite,heart_broken,home,hourglass_top,info,keyboard_arrow_down,library_music,link,local_fire_department,location_on,lyrics,menu,menu_book,mic,more_vert,music_note,my_location,pause,person,play_arrow,playlist_add,playlist_add_check,public,queue_music,repeat,repeat_one,schedule,search,share,shuffle,skip_next,skip_previous,upload,videocam,view_list,volume_off,volume_up,warning&display=block" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&icon_names=add,add_circle,airplay,album,apps,arrow_back,auto_awesome,block,calendar_today,check,check_circle,chevron_left,chevron_right,close,cloud_upload,confirmation_number,delete,done,edit,error,event,event_available,event_busy,expand_less,expand_more,explore,fact_check,fast_forward,fast_rewind,favorite,heart_broken,home,hourglass_top,image,info,keyboard_arrow_down,keyboard_arrow_up,library_music,link,local_fire_department,location_on,logout,lyrics,mail,menu,menu_book,mic,more_vert,movie,music_note,my_location,pause,person,person_off,play_arrow,playlist_add,playlist_add_check,public,queue_music,repeat,repeat_one,schedule,search,settings,share,shuffle,skip_next,skip_previous,smart_display,upload,videocam,view_list,volume_off,volume_up,warning&display=block" rel="stylesheet">
   <!-- Font Awesome : uniquement pour les logos des plateformes (Spotify, Deezer…) et les pages Sorties / Vidéos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
@@ -35,6 +35,8 @@
   <link rel="stylesheet" href="src/theme.css" />
   <link rel="stylesheet" href="src/events.css" />
   <link rel="stylesheet" href="src/playlist.css" />
+  <link rel="stylesheet" href="src/videos.css" />
+  <link rel="stylesheet" href="src/artistSpace.css" />
 </head>
 <body>
   <!-- Barre du haut (sur toute la largeur, comme YouTube Music) -->
@@ -67,9 +69,10 @@
           <a role="menuitem" href="#/liked"><span class="ms">favorite</span>Sons likés</a>
           <a role="menuitem" href="#/playlists"><span class="ms">library_music</span>Bibliothèque</a>
           <a role="menuitem" href="#/upcoming"><span class="ms">event</span>Événements</a>
+          <a role="menuitem" href="#/videos"><span class="ms">videocam</span>Vidéos</a>
           <hr>
           <a role="menuitem" href="https://www.bible.com/fr/verse-of-the-day/" target="_blank" rel="noopener"><span class="ms">menu_book</span>Verset du jour</a>
-          <a role="menuitem" href="https://cx-banger.github.io/authd.sdk/" target="_blank" rel="noopener"><span class="ms">upload</span>Upload Music</a>
+          <a role="menuitem" href="#/upload"><span class="ms">upload</span>Espace artiste</a>
           <hr>
           <button role="menuitem" type="button" data-cb="share"><span class="ms">share</span>Partager Muzikly</button>
           <button role="menuitem" type="button" data-cb="about"><span class="ms">info</span>À propos de ConnexionBanger</button>
@@ -96,10 +99,10 @@
         <div class="sidebar-playlists" id="sidebarPlaylists"></div>
         <hr class="sidebar-sep">
         <nav class="nav-main nav-secondary">
-          <a class="nav-btn" href="video-config.html"><span class="ms">videocam</span><span class="nav-label">Vidéos</span></a>
+          <a class="nav-btn" href="#/videos" data-page="videos"><span class="ms">videocam</span><span class="nav-label">Vidéos</span></a>
           <button class="nav-btn" type="button" data-soon="Wrapped 25"><span class="ms">auto_awesome</span><span class="nav-label">Wrapped 25</span><span class="nav-badge">Bientôt</span></button>
           <a class="nav-btn" href="https://www.bible.com/fr/verse-of-the-day/" target="_blank" rel="noopener"><span class="ms">menu_book</span><span class="nav-label">Verset du jour</span></a>
-          <a class="nav-btn" href="https://cx-banger.github.io/authd.sdk/" target="_blank" rel="noopener"><span class="ms">upload</span><span class="nav-label">Upload Music</span></a>
+          <a class="nav-btn" href="#/upload" data-page="upload"><span class="ms">upload</span><span class="nav-label">Espace artiste</span></a>
         </nav>
       </div>
     </aside>
@@ -281,7 +284,14 @@
         </section>
 
         <!-- Videos Management Page -->
-        <section id="page-videos" class="page">
+        <!-- Vidéos (clips, teasers, extraits, lives) : rempli par src/videos.js -->
+        <section id="page-videos" class="page"></section>
+
+        <!-- Espace artiste : dépôt de fichiers (rempli par src/artistSpace.js) -->
+        <section id="page-upload" class="page"></section>
+
+        <!-- Gestion des vidéos des titres (#/videos/admin) -->
+        <section id="page-videos-admin" class="page">
           <h1 class="page-title">Gestion des vidéos</h1>
           <p class="page-intro">Associe une vidéo à chaque son. Les vidéos doivent être téléversées dans Supabase Storage, dans le bucket « videos ».</p>
           <div id="videosManagement" class="videos-management">

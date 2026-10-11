@@ -7,6 +7,7 @@
 
 import { EVENTS, BANDSINTOWN } from './eventsData.js';
 import { escapeHtml, shareLink, showToast, coverColor } from './ui.js';
+import { videoForEvent } from './videos.js';
 
 /* Logo Muzikly (spirale) en version monochrome, comme les logos partenaires de Shazam */
 const MUZIKLY_MARK = `<svg class="ev-powered-logo" viewBox="0 0 24 24" aria-hidden="true">
@@ -264,9 +265,12 @@ export function renderEventDetail(container, id) {
   const isAlbum = ev.type === 'album';
   const placeLine = isAlbum ? 'Sur Muzikly' : ev.city;
   const others = upcomingEvents().filter(o => o.id !== ev.id && (artist ? o.artistId === ev.artistId : o.type === ev.type));
+  // Teaser : rangé dans la section Vidéos (videosData.js, champ eventId)
+  const teaser = videoForEvent(ev.id);
+  const teaserFile = teaser && !/youtu/.test(teaser.url) ? teaser.url : '';
   const shareBtn = `<button type="button" class="ev-btn" data-action="share">${ms('share')}<span>Partager</span></button>`;
   const firstBtn = isAlbum
-    ? (ev.teaser ? `<button type="button" class="ev-btn" data-action="teaser">${ms('play_arrow', true)}<span>Teaser</span></button>` : shareBtn)
+    ? (teaser ? `<a class="ev-btn" href="#/video/${encodeURIComponent(teaser.id)}">${ms('play_arrow', true)}<span>Teaser</span></a>` : shareBtn)
     : (ev.ticketUrl ? `<a class="ev-btn" href="${escapeHtml(ev.ticketUrl)}" target="_blank" rel="noopener">${ms('confirmation_number', true)}<span>${ev.type === 'scene' ? 'Inscription' : 'Billets'}</span></a>` : shareBtn);
 
   container.innerHTML = `
@@ -278,8 +282,8 @@ export function renderEventDetail(container, id) {
           <button type="button" class="ev-icon-btn" data-action="calendar" aria-label="Ajouter au calendrier">${ms('more_vert')}</button>
         </header>
       <section class="ev-hero">
-        ${ev.teaser
-          ? `<video class="ev-hero-media" src="${escapeHtml(ev.teaser)}" poster="${eventImage(ev)}" muted loop playsinline autoplay></video>`
+        ${teaserFile
+          ? `<video class="ev-hero-media" src="${escapeHtml(teaserFile)}" poster="${eventImage(ev)}" muted loop playsinline autoplay></video>`
           : `<img class="ev-hero-media" src="${eventImage(ev)}" alt="">`}
         <div class="ev-hero-shade"></div>
         <div class="ev-hero-body">
@@ -363,7 +367,6 @@ export function renderEventDetail(container, id) {
     if (action === 'calendar') downloadIcs(ev);
     if (action === 'map') openMap(ev);
     if (action === 'play-all') playArtist(artist, 0);
-    if (action === 'teaser') container.querySelector('.ev-hero-media')?.scrollIntoView({ behavior: 'smooth' });
     if (action === 'play-track') { e.preventDefault(); playArtist(artist, Number(el.dataset.index)); }
   }));
 

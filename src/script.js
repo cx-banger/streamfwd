@@ -4,6 +4,9 @@ import { initVideoManager, loadAllVideos } from './videoManager.js';
 import { initUpcomingShorts, handleUpcomingPageOpen, closeUpcomingIfOpen } from './upcoming.js';
 import { showToast, escapeHtml, shareLink } from './ui.js';
 import { renderPlaylistScreen, removedToast } from './playlistView.js';
+import { renderVideosPage, stopVideos } from './videos.js';
+import { renderArtistSpace } from './artistSpace.js';
+import { loadLiveData } from './liveData.js';
 import { renderEventsHome, renderEventDetail, renderArtistEvents, renderUpcomingSection, renderArtistEventBadge } from './events.js';
 
 /* === Configuration des ressources === */
@@ -143,7 +146,7 @@ function renderPage(id){
   document.querySelector('.pages')?.scrollTo(0, 0);
   if (id !== 'artist') document.title = 'Muzikly - ConnexionBanger';
 
-  if (id === 'videos') {
+  if (id === 'videos-admin') {
     initVideoManager(artists);
   }
 }
@@ -188,6 +191,9 @@ function route(){
 
   // Événements (façon Shazam) : accueil, fiche, liste d'un artiste
   const eventsPage = document.getElementById('page-upcoming');
+  const inVideos = (page === 'videos' && params[0] !== 'admin') || page === 'video';
+  document.body.classList.toggle('vd-mode', inVideos);
+  if (!inVideos) stopVideos();
   document.body.classList.toggle('pl-mode', page === 'liked' || page === 'playlist');
   document.body.classList.toggle('events-mode', ['upcoming', 'event', 'events'].includes(page));
   if (page === 'upcoming') {
@@ -213,6 +219,17 @@ function route(){
     return;
   }
 
+  // Vidéos : grille (#/videos), lecteur (#/video/<id>), gestion (#/videos/admin)
+  if (page === 'videos' && params[0] === 'admin') {
+    renderPage('videos-admin');
+    return;
+  }
+  if (page === 'videos' || (page === 'video' && params[0])) {
+    renderVideosPage(document.getElementById('page-videos'), page === 'video' ? params[0] : null);
+    renderPage('videos');
+    return;
+  }
+
   if (page === 'liked') {
     renderLikedTracks();
     renderPage('liked');
@@ -223,6 +240,12 @@ function route(){
     renderPage('playlist');
     navBtns.forEach(b => b.classList.toggle('active', b.dataset.page === 'playlists'));
     bottomBtns.forEach(b => b.classList.toggle('active', b.dataset.page === 'playlists'));
+    return;
+  }
+
+  if (page === 'upload') {
+    renderArtistSpace(document.getElementById('page-upload'));
+    renderPage('upload');
     return;
   }
 
@@ -1014,6 +1037,7 @@ async function init(){
   renderUpcomingSection(document.getElementById('exploreEvents'));
   renderPlaylists();
   route();
+  refreshLiveData();
 
   createPlaylistBtn?.addEventListener('click', createPlaylist);
   newPlaylistNameInput?.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') createPlaylist(); });
@@ -1027,6 +1051,17 @@ async function init(){
 
   await Promise.all([loadVideosForArtists(), initUpcomingShorts()]);
 }
+
+/* Événements et vidéos publiés par les artistes (Supabase) : rechargés au démarrage
+   et après une validation dans l'Espace artiste */
+async function refreshLiveData() {
+  const ok = await loadLiveData();
+  if (!ok) return;
+  renderUpcomingSection(document.getElementById('exploreEvents'));
+  const page = location.hash.replace(/^#\/?/, '').split('/')[0];
+  if (['upcoming', 'event', 'events', 'artist', 'videos', 'video'].includes(page)) route();
+}
+window.refreshLiveData = refreshLiveData;
 
 /* Suivant : en mode aléatoire, on évite de rejouer le même titre */
 function handleNext() {

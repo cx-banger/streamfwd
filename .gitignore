@@ -21,3 +21,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Identifiants des artistes (ne jamais publier)
+comptes-artistes.txt

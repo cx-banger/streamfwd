@@ -14,7 +14,7 @@
    - lat, lng  : coordonnées du lieu (pour le filtre « À proximité »)
    - image     : affiche de l'événement (sinon l'affiche Muzikly par défaut)
    - ticketUrl : lien billetterie / inscription (facultatif)
-   - teaser    : lien d'une vidéo teaser .mp4 (facultatif, affichée en haut de la fiche)
+   - teaser    : à ajouter dans la section Vidéos (src/videosData.js) avec eventId = l'id de l'événement
    ===================================================================== */
 
 export const EVENTS = [
@@ -49,8 +49,7 @@ export const EVENTS = [
     artistId: 2,
     title: 'Nouvel album de Synaï',
     date: '2026-12-04',
-    time: '00:00',
-    teaser: ''
+    time: '00:00'
   },
   {
     id: 'nan-showcase',
@@ -82,8 +81,7 @@ export const EVENTS = [
     artistId: 5,
     title: 'EP d\'Eilynn',
     date: '2027-01-16',
-    time: '00:00',
-    teaser: ''
+    time: '00:00'
   }
 ];
 
