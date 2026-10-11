@@ -1701,3 +1701,22 @@ button.avatar-btn:hover { box-shadow: 0 0 0 3px rgba(255, 255, 255, .15); }
 }
 .cb-menu a:hover, .cb-menu button[role="menuitem"]:hover { background: var(--hover); }
 .cb-menu .ms { font-size: 20px; color: var(--text-2); }
+
+/* Pastilles de filtre (Tout, NΛN, Synaï…) : même style que les boutons de l'outil d'aperçu
+   (Figtree gras, gris avec relief, rouge quand sélectionnée) */
+.chip {
+  height: auto;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #3b3937;
+  color: #fff;
+  font-family: 'Figtree', var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 3px 0 #22201e;
+}
+.chip:hover { background: #4a4846; }
+.chip.selected { background: #e74b3b; color: #fff; box-shadow: 0 3px 0 #9c2f23; }
+.chip:active { transform: translateY(2px); box-shadow: 0 1px 0 #22201e; }
+.chip.selected:active { box-shadow: 0 1px 0 #9c2f23; }
