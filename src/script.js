@@ -170,6 +170,13 @@ function route(){
 
   if (page !== 'upcoming') closeUpcomingIfOpen();
 
+  // Modes d'affichage de la page (avant tout retour anticipé : artiste, titre…)
+  const inVideos = (page === 'videos' && params[0] !== 'admin') || page === 'video';
+  document.body.classList.toggle('vd-mode', inVideos);
+  if (!inVideos) stopVideos();
+  document.body.classList.toggle('pl-mode', page === 'liked' || page === 'playlist');
+  document.body.classList.toggle('events-mode', ['upcoming', 'event', 'events'].includes(page));
+
   if (page === 'artist') {
     const artist = findArtist(params[0]);
     if (artist) return openArtist(artist);
@@ -191,11 +198,6 @@ function route(){
 
   // Événements (façon Shazam) : accueil, fiche, liste d'un artiste
   const eventsPage = document.getElementById('page-upcoming');
-  const inVideos = (page === 'videos' && params[0] !== 'admin') || page === 'video';
-  document.body.classList.toggle('vd-mode', inVideos);
-  if (!inVideos) stopVideos();
-  document.body.classList.toggle('pl-mode', page === 'liked' || page === 'playlist');
-  document.body.classList.toggle('events-mode', ['upcoming', 'event', 'events'].includes(page));
   if (page === 'upcoming') {
     renderEventsHome(eventsPage);
     renderPage('upcoming');
@@ -1092,6 +1094,7 @@ window.artists = artists;
 window.savePlaylists = savePlaylists;
 window.renderPlaylists = renderPlaylists;
 window.loadAndPlay = loadAndPlay;
+window.toQueueItem = toQueueItem;
 window.showPage = showPage;
 window.updatePlayingState = updatePlayingState;
 window.openArtist = goToArtist;

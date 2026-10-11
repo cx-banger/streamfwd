@@ -7,7 +7,7 @@
    ===================================================================== */
 
 import { VIDEOS } from './videosData.js';
-import { escapeHtml, shareLink, showToast } from './ui.js';
+import { escapeHtml, shareLink } from './ui.js';
 
 const ms = (name, fill = false) => `<span class="ms${fill ? ' ms-fill' : ''}">${name}</span>`;
 
@@ -19,12 +19,23 @@ export const VIDEO_TYPES = {
 };
 
 let filter = 'all';
-let muted = true;           // les navigateurs n'autorisent la lecture auto qu'en sourdine
+let muted = false;          // le son joue toujours ; sourdine provisoire seulement si le navigateur bloque
+let unlocking = false;
 let observer = null;
+let current = null;         // diapo actuellement à l'écran
+
+/* Les extraits (« canvas ») sont muets : on joue le titre de l'artiste à la place,
+   comme le son d'un Reel. Un seul lecteur réutilisé pour tout le fil. */
+const feedAudio = new Audio();
+feedAudio.loop = true;
+feedAudio.preload = 'auto';
 
 /* ---------- Données ---------- */
 const artistOf = v => (window.artists || []).find(a => a.id === v.artistId) || null;
 const trackOf = v => { const a = artistOf(v); return a && v.trackNo ? a.tracks[v.trackNo - 1] || null : null; };
+const trackSrc = t => (Array.isArray(t.src) ? t.src[0] : t.src);
+/* Son du titre pour les extraits (vidéos sans piste audio) ; les clips, teasers et lives gardent leur propre son */
+const usesTrackSound = v => v.type === 'extrait' && !!trackOf(v) && !youtubeId(v.url);
 const posterOf = v => v.poster || trackOf(v)?.cover || artistOf(v)?.photo || '';
 function youtubeId(url) {
   const m = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
@@ -48,6 +59,8 @@ function toggleLikeVideo(id) {
 /* ---------- Fil ---------- */
 export function renderVideosPage(container, openId = null) {
   observer?.disconnect();
+  current = null;
+  feedAudio.pause();
   if (window.audio && !window.audio.paused) window.audio.pause();
 
   const all = sortedVideos();
@@ -96,14 +109,16 @@ export function renderVideosPage(container, openId = null) {
     entries.forEach(entry => {
       const s = entry.target;
       const vid = s.querySelector('video');
-      if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
-        if (vid) { vid.muted = muted; vid.play().catch(() => {}); s.classList.remove('paused'); }
-        if (s.dataset.yt && !s.querySelector('iframe')) mountYouTube(s);
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+        if (current === s) return;
+        current = s;
+        playSlide(s);
         if (location.hash !== `#/video/${s.dataset.id}`) history.replaceState(null, '', `#/video/${s.dataset.id}`);
         document.title = `${s.dataset.title} - Muzikly`;
-      } else {
+      } else if (entry.intersectionRatio < 0.6) {
         if (vid) { vid.pause(); }
         if (s.dataset.yt) s.querySelector('iframe')?.remove();
+        if (current === s) { current = null; feedAudio.pause(); }
       }
     });
   }, { root: feed, threshold: [0, 0.6, 1] });
@@ -133,7 +148,6 @@ function slide(v) {
 
       <aside class="sh-actions">
         <button type="button" class="sh-act${liked ? ' on' : ''}" data-act="like" aria-label="J'aime">${ms('favorite', liked)}<span>J'aime</span></button>
-        <button type="button" class="sh-act" data-act="sound" aria-label="Son">${ms(muted ? 'volume_off' : 'volume_up', true)}<span>${muted ? 'Son' : 'Couper'}</span></button>
         <button type="button" class="sh-act" data-act="share" aria-label="Partager">${ms('share', true)}<span>Partager</span></button>
         ${trackOf(v) ? `<button type="button" class="sh-act" data-act="listen" aria-label="Écouter le titre">${ms('music_note', true)}<span>Écouter</span></button>` : ''}
         ${a ? `<a class="sh-avatar" href="#/artist/${a.id}" aria-label="Voir ${escapeHtml(a.name)}"><img src="${a.photo}" alt=""></a>` : ''}
@@ -156,15 +170,68 @@ function mountYouTube(s) {
   s.querySelector('.sh-media').appendChild(iframe);
 }
 
+/* Lance la diapo visible : image + son (le titre de l'artiste pour un extrait, sinon le son de la vidéo) */
+function playSlide(s) {
+  const v = findVideo(s.dataset.id);
+  const vid = s.querySelector('video');
+  s.classList.remove('paused');
+  if (s.dataset.yt) { if (!s.querySelector('iframe')) mountYouTube(s); return; }
+
+  if (v && usesTrackSound(v)) {
+    if (vid) { vid.muted = true; vid.play().catch(() => {}); }
+    const src = trackSrc(trackOf(v));
+    if (feedAudio.dataset.src !== src) {
+      feedAudio.src = src;
+      feedAudio.dataset.src = src;
+      feedAudio.currentTime = v.start || 0;
+    }
+    feedAudio.muted = muted;
+    feedAudio.play().catch(blocked);
+  } else {
+    feedAudio.pause();
+    if (!vid) return;
+    vid.muted = muted;
+    vid.play().catch(() => { blocked(); vid.muted = true; vid.play().catch(() => {}); });
+  }
+}
+
+/* Le navigateur refuse le son sans geste de l'utilisateur (ouverture par un lien direct) :
+   on passe en sourdine, et le premier toucher sur la page remet le son. */
+function blocked() {
+  if (muted) return;
+  setMuted(true);
+  const unlock = () => {
+    ['pointerdown', 'keydown'].forEach(t => document.removeEventListener(t, unlock, true));
+    if (!document.body.classList.contains('vd-mode')) return;
+    setMuted(false);
+    if (!current) return;
+    // ce toucher sert à remettre le son : il ne doit pas aussi mettre la vidéo en pause
+    unlocking = true;
+    setTimeout(() => { unlocking = false; }, 500);
+    if (current.dataset.yt) current.querySelector('iframe')?.remove();
+    playSlide(current);
+  };
+  ['pointerdown', 'keydown'].forEach(t => document.addEventListener(t, unlock, true));
+}
+
+function setMuted(on) {
+  muted = on;
+  feedAudio.muted = on;
+  document.querySelectorAll('.sh-slide video').forEach(x => {
+    const v = findVideo(x.closest('.sh-slide').dataset.id);
+    x.muted = on || (v && usesTrackSound(v));
+  });
+}
+
 function wireSlide(s) {
   const v = findVideo(s.dataset.id);
   const vid = s.querySelector('video');
 
-  // Toucher la vidéo : pause / lecture
+  // Toucher la vidéo : pause / lecture (image et son ensemble)
   s.querySelector('.sh-media').addEventListener('click', () => {
-    if (!vid) return;
-    if (vid.paused) { vid.play().catch(() => {}); s.classList.remove('paused'); }
-    else { vid.pause(); s.classList.add('paused'); }
+    if (!vid || unlocking) return;
+    if (s.classList.contains('paused')) playSlide(s);
+    else { vid.pause(); if (usesTrackSound(v)) feedAudio.pause(); s.classList.add('paused'); }
   });
 
   s.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', e => {
@@ -176,32 +243,33 @@ function wireSlide(s) {
       b.querySelector('.ms').classList.toggle('ms-fill', on);
       b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
     }
-    if (act === 'sound') {
-      muted = !muted;
-      document.querySelectorAll('.sh-slide video').forEach(x => { x.muted = muted; });
-      document.querySelectorAll('.sh-act[data-act="sound"]').forEach(x => {
-        x.querySelector('.ms').textContent = muted ? 'volume_off' : 'volume_up';
-        x.querySelector('span:last-child').textContent = muted ? 'Son' : 'Couper';
-      });
-      if (s.dataset.yt) { s.querySelector('iframe')?.remove(); mountYouTube(s); }
-      showToast(muted ? 'Son coupé' : 'Son activé', { icon: muted ? 'volume_off' : 'volume_up' });
-    }
     if (act === 'share') {
       const a = artistOf(v);
       shareLink({ title: v.title, text: `${v.title}${a ? ` — ${a.name}` : ''} sur Muzikly`, url: `${location.origin}${location.pathname}#/video/${v.id}` });
     }
     if (act === 'listen') {
+      // Ouvre le titre dans le lecteur, en reprenant là où en était l'extrait
       const a = artistOf(v);
-      if (vid) vid.pause();
-      window.playlist = a.tracks.map(x => ({ src: x.src, title: x.title, artist: a.name, thumb: x.cover || a.photo, canvasId: x.canvasId, video: x.video }));
+      const at = usesTrackSound(v) && feedAudio.dataset.src === trackSrc(trackOf(v)) ? feedAudio.currentTime : 0;
+      stopVideos();
+      window.playlist = a.tracks.map(x => window.toQueueItem(a, x));
       window.loadAndPlay(v.trackNo - 1);
+      if (at > 1) {
+        const seek = () => { window.audio.currentTime = at; };
+        if (window.audio.readyState >= 1) seek();
+        else window.audio.addEventListener('loadedmetadata', seek, { once: true });
+      }
+      location.hash = `#/artist/${a.id}`;
+      window.openFullPlayer?.();
     }
   }));
 }
 
-/* Quand on quitte la page Vidéos : arrêter les vidéos */
+/* Quand on quitte la page Vidéos : arrêter les vidéos et leur son */
 export function stopVideos() {
   observer?.disconnect();
+  current = null;
+  feedAudio.pause();
   document.querySelectorAll('.sh-slide video').forEach(v => v.pause());
   document.querySelectorAll('.sh-slide iframe').forEach(f => f.remove());
 }
