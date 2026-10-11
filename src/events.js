@@ -294,6 +294,9 @@ export function renderEventsHome(container) {
   const menu = container.querySelector('.ev-type-menu');
   container.querySelector('.ev-type-btn').addEventListener('click', (e) => {
     e.stopPropagation();
+    // Le menu s'ouvre juste sous « Pour vous ⌄ », quelle que soit la largeur de la fenêtre
+    const btn = e.currentTarget;
+    menu.style.left = `${Math.max(8, btn.offsetLeft - 16)}px`;
     menu.hidden = !menu.hidden;
   });
   menu.querySelectorAll('[data-type]').forEach(b => b.addEventListener('click', () => {
