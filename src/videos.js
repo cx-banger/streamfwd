@@ -151,8 +151,11 @@ function slide(v) {
         <button type="button" class="sh-act${liked ? ' on' : ''}" data-act="like" aria-label="J'aime">${ms('favorite', liked)}<span>J'aime</span></button>
         <button type="button" class="sh-act" data-act="share" aria-label="Partager">${ms('share', true)}<span>Partager</span></button>
         ${trackOf(v) ? `<button type="button" class="sh-act" data-act="listen" aria-label="Écouter le titre">${ms('music_note', true)}<span>Écouter</span></button>` : ''}
-        ${a ? `<a class="sh-avatar" href="#/artist/${a.id}" aria-label="Voir ${escapeHtml(a.name)}"><img src="${a.photo}" alt=""></a>` : ''}
       </aside>
+
+      ${trackOf(v)
+        ? `<button type="button" class="sh-disc" data-act="listen" aria-label="Écouter ${escapeHtml(trackOf(v).title)}"><img src="${trackOf(v).cover || posterOf(v)}" alt=""></button>`
+        : (a ? `<a class="sh-disc" href="#/artist/${a.id}" aria-label="Voir ${escapeHtml(a.name)}"><img src="${a.photo}" alt=""></a>` : '')}
 
       <div class="sh-info">
         ${a ? `<a class="sh-artist" href="#/artist/${a.id}"><img src="${a.photo}" alt=""><strong>${escapeHtml(a.name)}</strong></a>` : '<span class="sh-artist"><strong>Muzikly</strong></span>'}
