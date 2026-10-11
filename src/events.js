@@ -140,19 +140,27 @@ function transitLegs(t) {
 }
 const hasTransit = ev => !!(ev.transit && (transitLegs(ev.transit).length || ev.transit.walk));
 
+/* Pictogrammes de la maquette (train, chevron, marcheur) */
+const SVG_TRAIN = '<svg class="tr-ico" width="14" height="19" viewBox="0 0 14 19.37" aria-hidden="true"><path fill="currentColor" d="M0.986087 19.1929L1.91391 18.1969H12.1196L13.0474 19.1929C13.096 19.2484 13.1565 19.293 13.2247 19.3235C13.2929 19.3541 13.3672 19.37 13.4423 19.37C13.5174 19.37 13.5917 19.3541 13.6599 19.3235C13.7281 19.293 13.7886 19.2484 13.8372 19.1929C13.9422 19.0747 14 18.9238 14 18.7678C14 18.6117 13.9422 18.4609 13.8372 18.3426L11.15 15.4515C11.2097 15.415 11.2657 15.3729 11.3172 15.326C11.9274 14.8184 12.3778 14.1547 12.6169 13.4107C13.1082 12.1623 13.4109 10.8518 13.5155 9.51952C13.6408 7.75813 12.8927 5.02084 12.3954 3.7413L12.224 3.29184C11.906 2.68573 11.4818 2.13771 10.9703 1.67218C10.3476 1.04455 9.75412 1 8.84305 1H5.157C4.24593 1 3.64826 1.04455 3.02974 1.67218C2.51727 2.13688 2.09292 2.68507 1.77597 3.29184L1.60466 3.74535C1.10733 5.02084 0.350865 7.75814 0.4846 9.52357C0.588552 10.8546 0.891225 12.1639 1.38314 13.4107C1.62224 14.1547 2.07266 14.8184 2.68288 15.326C2.73551 15.3703 2.79139 15.4109 2.85006 15.4475L0.162792 18.3426C0.0577658 18.4609 0 18.6117 0 18.7678C0 18.9238 0.0577658 19.0747 0.162792 19.1929C0.211441 19.2484 0.271979 19.293 0.340174 19.3235C0.40837 19.3541 0.482619 19.37 0.557757 19.37C0.632896 19.37 0.707094 19.3541 0.775289 19.3235C0.843485 19.293 0.904023 19.2484 0.952672 19.1929H0.986087ZM2.99632 16.9943L3.98261 15.9252C4.39461 16.0095 4.81547 16.0462 5.23638 16.0346H8.73857C9.1595 16.0467 9.58041 16.01 9.99234 15.9252L10.9828 16.9943H2.99632ZM10.218 14.3946C10.0354 14.3946 9.85675 14.3422 9.70487 14.2439C9.55298 14.1456 9.43465 14.0057 9.36474 13.8422C9.29484 13.6787 9.27651 13.4988 9.31214 13.3252C9.34778 13.1516 9.43576 12.9922 9.56493 12.867C9.6941 12.7419 9.85868 12.6567 10.0378 12.6221C10.217 12.5876 10.4027 12.6053 10.5715 12.6731C10.7402 12.7408 10.8845 12.8555 10.986 13.0026C11.0875 13.1498 11.1416 13.3228 11.1416 13.4998C11.1416 13.7371 11.0443 13.9648 10.8711 14.1326C10.6979 14.3004 10.463 14.3946 10.218 14.3946ZM1.85958 8.6651C1.29539 8.6651 2.18138 3.86684 2.58676 3.86684H11.2628C11.6808 3.86684 12.7339 8.6651 12.0402 8.6651H1.85958ZM2.79991 13.4998C2.79991 13.3228 2.85407 13.1498 2.95556 13.0026C3.05705 12.8555 3.20129 12.7408 3.37006 12.6731C3.53883 12.6053 3.72453 12.5876 3.90369 12.6221C4.08285 12.6567 4.24744 12.7419 4.37661 12.867C4.50578 12.9922 4.5937 13.1516 4.62934 13.3252C4.66498 13.4988 4.6467 13.6787 4.57679 13.8422C4.50689 14.0057 4.38851 14.1456 4.23662 14.2439C4.08473 14.3422 3.90617 14.3946 3.7235 14.3946C3.47854 14.3946 3.2436 14.3004 3.07039 14.1326C2.89718 13.9648 2.79991 13.7371 2.79991 13.4998Z"/></svg>';
+const SVG_CHEV = '<svg class="tr-chev" width="6" height="10" viewBox="180 5.5 6 10" aria-hidden="true"><path d="M181 6.5L184.5 10.5L181 14.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+const SVG_WALK = '<svg class="tr-walk-ico" width="11" height="20" viewBox="202 1 11 20" aria-hidden="true"><path fill="currentColor" d="M208.346 4.72093C209.277 4.72093 210.038 3.88372 210.038 2.86047C210.038 1.83721 209.277 1 208.346 1C207.415 1 206.654 1.83721 206.654 2.86047C206.654 3.88372 207.415 4.72093 208.346 4.72093ZM205.215 7.88372L202.846 21H204.623L206.146 13.5581L207.923 15.4186V21H209.615V14.0233L207.838 12.1628L208.346 9.37209C209.446 10.7674 211.138 11.6977 213 11.6977V9.83721C211.392 9.83721 210.038 8.90698 209.362 7.60465L208.515 6.11628C208.042 5.28837 207.094 4.95349 206.273 5.33488L202 7.32558V11.6977H203.692V8.53488L205.215 7.88372Z"/></svg>';
+
+/* Trajet par défaut sur chaque ticket tant que l'événement n'a pas le sien (à personnaliser dans l'Espace artiste) */
+const DEFAULT_TRANSIT = { legs: [{ mode: 'train', lines: ['166', '348D', '362C'] }], walk: 6 };
+const ticketTransit = ev => (hasTransit(ev) ? ev.transit : DEFAULT_TRANSIT);
+
 function transitStrip(t) {
   const legs = transitLegs(t);
-  const chev = `<span class="tr-chev">${ms('chevron_right')}</span>`;
   const parts = legs.map(l => {
     const mode = TRANSIT_MODES[l.mode];
-    // TGV sans numéro : pastille « TGV » ; sinon les lignes en pastilles jaunes
+    const icon = ['train', 'tgv', 'rer'].includes(l.mode) ? SVG_TRAIN : ms(mode.icon, true);
     const pills = l.lines.length ? l.lines : (l.mode === 'tgv' ? ['TGV'] : []);
-    return `<span class="tr-leg tr-${l.mode}"><span class="tr-mode" title="${mode.label}">${ms(mode.icon, true)}</span>${
+    return `<span class="tr-leg tr-${l.mode}"><span class="tr-mode" title="${mode.label}">${icon}</span>${
       pills.length ? `<span class="tr-lines">${pills.map(x => `<span>${escapeHtml(x)}</span>`).join('')}</span>` : ''}</span>`;
   });
-  if (t.walk) parts.push(`<span class="tr-walk" title="${Number(t.walk)} min à pied">${ms('directions_walk', true)}<small>${Number(t.walk)}</small></span>`);
+  if (t.walk) parts.push(`<span class="tr-walk" title="${Number(t.walk)} min à pied">${SVG_WALK}<small>${Number(t.walk)}</small></span>`);
   const label = [legs.map(l => TRANSIT_MODES[l.mode].label).join(' + '), t.stop, t.walk ? `${Number(t.walk)} min à pied` : ''].filter(Boolean).join(' · ');
-  return `<span class="tr-strip" title="${escapeHtml(label)}">${parts.join(chev)}</span>`;
+  return `<span class="tr-strip" title="${escapeHtml(label)}">${parts.join(SVG_CHEV)}</span>`;
 }
 
 /* Panneau jaune de l'arrêt (comme les panneaux de gare) */
@@ -237,7 +245,7 @@ function savedTicket(ev) {
       </a>
       <a class="ev-ticket-bottom" href="#/event/${encodeURIComponent(ev.id)}">
         <span class="ev-ticket-guide">Voir le guide<span class="ev-g-long"> de l'événement</span></span>
-        ${hasTransit(ev) ? transitStrip(ev.transit) : ''}
+        ${transitStrip(ticketTransit(ev))}
       </a>
     </div>`;
 }

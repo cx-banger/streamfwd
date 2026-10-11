@@ -878,3 +878,58 @@ body.events-mode:has(.ev-home) .main, body.events-mode:has(.ev-home) .pages { ba
   .tr-chev .ms { font-size: 20px; }
   .tr-walk small { font-size: 11px; }
 }
+
+/* =====================================================================
+   Bande transports du ticket — maquette fournie (221 × 22) :
+   picto train #8C8C8C, pastilles #FBBC04 coupées en biais (texte noir,
+   Product Sans → Google Sans Flex 16 px), chevron #D9D9D9, marcheur blanc,
+   minutes en Roboto 11 px #DDDDDD
+   ===================================================================== */
+.ev-ticket-bottom { height: 64px; }
+.tr-strip { display: inline-flex; align-items: center; gap: 0; flex-shrink: 0; }
+.tr-leg { display: inline-flex; align-items: center; gap: 7px; }
+.tr-mode { display: flex; color: #8c8c8c; }
+.tr-mode .ms { font-size: 20px; color: #8c8c8c; }
+.tr-ico { display: block; }
+.tr-lines { display: inline-flex; height: 21px; border-radius: 0; background: none; overflow: visible; }
+.tr-lines span {
+  display: flex;
+  align-items: center;
+  height: 21px;
+  padding: 0 13px 0 15px;
+  margin-left: -7px;                 /* chevauchement : il reste ~4 px de fente en biais */
+  background: #fbbc04;
+  color: #000;
+  font-family: 'Google Sans Flex', 'Product Sans', 'Roboto', sans-serif !important;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  border-radius: 2px;
+  clip-path: polygon(11px 0, 100% 0, calc(100% - 11px) 100%, 0 100%);
+}
+.tr-lines span + span::before { content: none; }
+.tr-lines span:first-child {
+  margin-left: 0;
+  padding-left: 9px;
+  border-radius: 7px 0 0 7px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 11px) 100%, 0 100%);
+}
+.tr-lines span:last-child {
+  padding-right: 9px;
+  border-radius: 0 7px 7px 0;
+  clip-path: polygon(11px 0, 100% 0, 100% 100%, 0 100%);
+}
+.tr-lines span:only-child { margin-left: 0; padding: 0 9px; border-radius: 7px; clip-path: none; }
+.tr-tgv .tr-lines span { background: #9b2743; color: #fff; font-weight: 500; }
+.tr-chev { display: block; color: #d9d9d9; margin: 0 12px; }
+.tr-walk { display: inline-flex; align-items: flex-end; gap: 3px; color: #fff; margin-left: 5px; }
+.tr-walk-ico { display: block; }
+.tr-walk small { font-family: 'Roboto', sans-serif !important; font-size: 11px; line-height: 13px; font-weight: 400; color: #ddd; margin: 0; }
+@media (max-width: 600px) {
+  .tr-leg { gap: 6px; }
+  .tr-mode .ms { font-size: 18px; }
+  .tr-lines span { font-size: 15px; padding: 0 11px 0 14px; }
+  .tr-lines span:first-child { padding-left: 8px; }
+  .tr-lines span:last-child { padding-right: 8px; }
+  .tr-chev { margin: 0 8px; }
+}
