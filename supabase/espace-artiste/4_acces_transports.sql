@@ -4,8 +4,8 @@
 --    À coller dans Supabase → SQL Editor → Run (une seule fois).
 --
 --    Format enregistré par l'Espace artiste :
---    { "stop": "Narbonne-Plage", "mode": "bus", "lines": ["166", "348D"], "walk": 6 }
---    mode : train, rer, metro, tram ou bus ; walk : minutes de marche depuis l'arrêt
+--    { "stop": "Place de Clichy", "legs": [{ "mode": "metro", "lines": ["2", "13"] }, { "mode": "bus", "lines": ["30"] }], "walk": 4 }
+--    mode : tgv, train, rer, metro, tram ou bus ; walk : minutes de marche depuis l'arrêt
 -- =====================================================================
 
 alter table public.events add column if not exists transit jsonb;

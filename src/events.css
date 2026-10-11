@@ -844,3 +844,37 @@ body.events-mode:has(.ev-home) .main, body.events-mode:has(.ev-home) .pages { ba
   .tr-lines { height: 26px; }
   .tr-lines span { padding: 0 7px; font-size: 15px; }
 }
+
+/* Accès : plusieurs étapes (ex. métro › bus › à pied) ; TGV en pastille bordeaux */
+.tr-leg { display: inline-flex; align-items: center; gap: 6px; }
+.tr-tgv .tr-lines { background: #9b2743; color: #fff; }
+.tr-tgv .tr-lines span { font-weight: 700; letter-spacing: .04em; }
+@media (max-width: 600px) {
+  .tr-strip { gap: 4px; }
+  .tr-leg { gap: 4px; }
+  .tr-mode .ms, .tr-walk .ms { font-size: 21px; }
+}
+
+/* Bande transports : au plus près de la signalétique SNCF (référence fournie) —
+   grandes pastilles jaunes en police fine, coupures en biais, pictos gris */
+.ev-ticket-bottom { height: 72px; }
+.tr-strip { gap: 8px; }
+.tr-leg { gap: 8px; }
+.tr-mode .ms { font-size: 30px; color: #9a9a9e; }
+.tr-lines { height: 34px; border-radius: 9px; background: #fdb913; }
+.tr-lines span { padding: 0 12px; font-size: 21px; font-weight: 400; letter-spacing: 0; }
+.tr-lines span + span::before { width: 5px; left: -3px; transform: skewX(-24deg); }
+.tr-chev .ms { font-size: 26px; color: #c7c7cc; margin: 0 -2px; }
+.tr-walk .ms { font-size: 30px; }
+.tr-walk small { font-size: 13px; color: #c7c7cc; font-weight: 400; margin-left: 0; }
+.tr-tgv .tr-lines span { font-weight: 500; }
+@media (max-width: 600px) {
+  .ev-ticket-bottom { height: 64px; }
+  .tr-strip, .tr-leg { gap: 4px; }
+  .tr-mode .ms, .tr-walk .ms { font-size: 22px; }
+  .tr-lines { height: 26px; border-radius: 7px; }
+  .tr-lines span { padding: 0 7px; font-size: 15px; }
+  .tr-lines span + span::before { width: 4px; left: -2px; }
+  .tr-chev .ms { font-size: 20px; }
+  .tr-walk small { font-size: 11px; }
+}

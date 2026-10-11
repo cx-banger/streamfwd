@@ -116,28 +116,52 @@ function openRoute(ev) {
 }
 
 /* ---------- Accès en transports, façon signalétique SNCF ----------
-   ev.transit = { stop: 'Narbonne-Plage', mode: 'train'|'rer'|'metro'|'tram'|'bus', lines: ['166', '348D'], walk: 6 } */
+   ev.transit = {
+     stop: 'Place de Clichy',                       // arrêt ou gare d'arrivée
+     legs: [{ mode: 'metro', lines: ['2', '13'] },  // étapes dans l'ordre : tgv, train, rer, metro, tram, bus
+            { mode: 'bus', lines: ['30'] }],
+     walk: 4                                        // minutes à pied jusqu'au lieu
+   }
+   (ancien format accepté : { stop, mode, lines, walk }) */
 const TRANSIT_MODES = {
+  tgv:   { icon: 'train', label: 'TGV' },
   train: { icon: 'train', label: 'Train' },
   rer:   { icon: 'train', label: 'RER' },
   metro: { icon: 'subway', label: 'Métro' },
   tram:  { icon: 'tram', label: 'Tram' },
   bus:   { icon: 'directions_bus', label: 'Bus' }
 };
-const hasTransit = ev => !!(ev.transit && (ev.transit.stop || (ev.transit.lines || []).length));
+export const TRANSIT_ORDER = Object.keys(TRANSIT_MODES);
+
+function transitLegs(t) {
+  if (!t) return [];
+  const legs = Array.isArray(t.legs) ? t.legs : (t.mode ? [{ mode: t.mode, lines: t.lines }] : []);
+  return legs.filter(l => TRANSIT_MODES[l.mode]).map(l => ({ mode: l.mode, lines: (l.lines || []).filter(Boolean) }));
+}
+const hasTransit = ev => !!(ev.transit && (transitLegs(ev.transit).length || ev.transit.walk));
 
 function transitStrip(t) {
-  const mode = TRANSIT_MODES[t.mode] || TRANSIT_MODES.bus;
-  const lines = (t.lines || []).filter(Boolean);
-  return `<span class="tr-strip" title="${escapeHtml([mode.label, t.stop].filter(Boolean).join(' · '))}">
-      <span class="tr-mode">${ms(mode.icon, true)}</span>
-      ${lines.length ? `<span class="tr-lines">${lines.map(l => `<span>${escapeHtml(l)}</span>`).join('')}</span>` : ''}
-      ${t.walk ? `<span class="tr-chev">${ms('chevron_right')}</span><span class="tr-walk">${ms('directions_walk', true)}<small>${Number(t.walk)}</small></span>` : ''}
-    </span>`;
+  const legs = transitLegs(t);
+  const chev = `<span class="tr-chev">${ms('chevron_right')}</span>`;
+  const parts = legs.map(l => {
+    const mode = TRANSIT_MODES[l.mode];
+    // TGV sans numéro : pastille « TGV » ; sinon les lignes en pastilles jaunes
+    const pills = l.lines.length ? l.lines : (l.mode === 'tgv' ? ['TGV'] : []);
+    return `<span class="tr-leg tr-${l.mode}"><span class="tr-mode" title="${mode.label}">${ms(mode.icon, true)}</span>${
+      pills.length ? `<span class="tr-lines">${pills.map(x => `<span>${escapeHtml(x)}</span>`).join('')}</span>` : ''}</span>`;
+  });
+  if (t.walk) parts.push(`<span class="tr-walk" title="${Number(t.walk)} min à pied">${ms('directions_walk', true)}<small>${Number(t.walk)}</small></span>`);
+  const label = [legs.map(l => TRANSIT_MODES[l.mode].label).join(' + '), t.stop, t.walk ? `${Number(t.walk)} min à pied` : ''].filter(Boolean).join(' · ');
+  return `<span class="tr-strip" title="${escapeHtml(label)}">${parts.join(chev)}</span>`;
 }
 
 /* Panneau jaune de l'arrêt (comme les panneaux de gare) */
-const stationSign = name => `<span class="tr-sign"><strong>${escapeHtml(name)}</strong>${ms('train')}</span>`;
+/* (avec l'icône du dernier transport : c'est là qu'on descend) */
+function stationSign(t) {
+  const last = transitLegs(t).slice(-1)[0];
+  const icon = last ? TRANSIT_MODES[last.mode].icon : 'directions_walk';
+  return `<span class="tr-sign"><strong>${escapeHtml(t.stop)}</strong>${ms(icon)}</span>`;
+}
 
 /* ---------- QR code du ticket : ouvre la fiche de l'événement ---------- */
 function eventQr(ev) {
@@ -361,7 +385,7 @@ export function renderEventDetail(container, id) {
           </button>
           <button type="button" class="ev-guide-row ev-guide-transit" data-action="route">
             <span class="ev-guide-text"><small>S'y rendre</small>${hasTransit(ev)
-              ? `<span class="tr-row">${ev.transit.stop ? stationSign(ev.transit.stop) : ''}${transitStrip(ev.transit)}</span>`
+              ? `<span class="tr-row">${ev.transit.stop ? stationSign(ev.transit) : ''}${transitStrip(ev.transit)}</span>`
               : '<strong>Itinéraire en transports en commun</strong>'}</span>
             <span class="ev-guide-icon">${ms('directions_transit', true)}</span>
           </button>`}
