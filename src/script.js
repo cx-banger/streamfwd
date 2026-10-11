@@ -109,7 +109,6 @@ const upcomingDiv = document.getElementById('upcoming');
 const playlistListDiv = document.getElementById('playlistList');
 const playlistTracksDiv = document.getElementById('playlistTracks');
 const likedTracksDiv = document.getElementById('likedTracks');
-const searchInput = document.getElementById('searchInput');
 const searchResultsDiv = document.getElementById('searchResults');
 const headerSearch = document.getElementById('headerSearch');
 const newPlaylistNameInput = document.getElementById('newPlaylistName');
@@ -216,7 +215,7 @@ function route(){
 
   if (page === 'search' && params[0]) {
     renderPage('search');
-    searchInput.value = params[0];
+    headerSearch.value = params[0];
     doSearch(params[0]);
     return;
   }
@@ -265,14 +264,20 @@ document.querySelectorAll('[data-soon]').forEach(b=>{
   b.addEventListener('click', ()=> showToast(`${b.dataset.soon} arrive bientôt !`, { icon: 'hourglass_top' }));
 });
 
-/* La recherche du bandeau ouvre la page Recherche et met à jour l'URL sans empiler l'historique */
+/* La recherche du bandeau (seule barre de recherche) ouvre la page Explorer
+   et met à jour l'URL sans empiler l'historique */
 headerSearch.addEventListener('input', e=>{
   const q = e.target.value.trim();
+  const onSearch = document.getElementById('page-search').classList.contains('active');
   if(q.length>=2){
-    if (!document.getElementById('page-search').classList.contains('active')) renderPage('search');
-    searchInput.value = q;
+    if (!onSearch) renderPage('search');
     doSearch(q);
     history.replaceState(null, '', '#/search/' + encodeURIComponent(q));
+  } else if (onSearch) {
+    // Recherche effacée : retour à la vue par défaut d'Explorer
+    searchResultsDiv.innerHTML = '';
+    setSearchMode(false);
+    history.replaceState(null, '', '#/search');
   }
 });
 
@@ -856,12 +861,6 @@ function doSearch(q){
   });
 }
 
-searchInput.addEventListener('input', (e)=>{
-  const q = e.target.value.trim();
-  history.replaceState(null, '', q ? '#/search/' + encodeURIComponent(q) : '#/search');
-  if(q.length<2){ searchResultsDiv.innerHTML=''; setSearchMode(false); return; }
-  doSearch(q);
-});
 
 /* ===== Player functions ===== */
 function resolveSrc(src){
