@@ -8,6 +8,7 @@
 import { EVENTS, BANDSINTOWN } from './eventsData.js';
 import { escapeHtml, shareLink, showToast, coverColor } from './ui.js';
 import { videoForEvent } from './videos.js';
+import qrcode from 'qrcode-generator';
 
 /* Logo Muzikly (spirale) en version monochrome, comme les logos partenaires de Shazam */
 const MUZIKLY_MARK = `<svg class="ev-powered-logo" viewBox="0 0 24 24" aria-hidden="true">
@@ -108,6 +109,47 @@ function openMap(ev) {
   window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank', 'noopener');
 }
 
+/* Itinéraire en transports en commun jusqu'au lieu */
+function openRoute(ev) {
+  const q = encodeURIComponent([ev.venue, ev.address, ev.city].filter(Boolean).join(', '));
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=transit`, '_blank', 'noopener');
+}
+
+/* ---------- Accès en transports, façon signalétique SNCF ----------
+   ev.transit = { stop: 'Narbonne-Plage', mode: 'train'|'rer'|'metro'|'tram'|'bus', lines: ['166', '348D'], walk: 6 } */
+const TRANSIT_MODES = {
+  train: { icon: 'train', label: 'Train' },
+  rer:   { icon: 'train', label: 'RER' },
+  metro: { icon: 'subway', label: 'Métro' },
+  tram:  { icon: 'tram', label: 'Tram' },
+  bus:   { icon: 'directions_bus', label: 'Bus' }
+};
+const hasTransit = ev => !!(ev.transit && (ev.transit.stop || (ev.transit.lines || []).length));
+
+function transitStrip(t) {
+  const mode = TRANSIT_MODES[t.mode] || TRANSIT_MODES.bus;
+  const lines = (t.lines || []).filter(Boolean);
+  return `<span class="tr-strip" title="${escapeHtml([mode.label, t.stop].filter(Boolean).join(' · '))}">
+      <span class="tr-mode">${ms(mode.icon, true)}</span>
+      ${lines.length ? `<span class="tr-lines">${lines.map(l => `<span>${escapeHtml(l)}</span>`).join('')}</span>` : ''}
+      ${t.walk ? `<span class="tr-chev">${ms('chevron_right')}</span><span class="tr-walk">${ms('directions_walk', true)}<small>${Number(t.walk)}</small></span>` : ''}
+    </span>`;
+}
+
+/* Panneau jaune de l'arrêt (comme les panneaux de gare) */
+const stationSign = name => `<span class="tr-sign"><strong>${escapeHtml(name)}</strong>${ms('train')}</span>`;
+
+/* ---------- QR code du ticket : ouvre la fiche de l'événement ---------- */
+function eventQr(ev) {
+  const qr = qrcode(0, 'M');
+  qr.addData(`${location.origin}${location.pathname}#/event/${encodeURIComponent(ev.id)}`);
+  qr.make();
+  const n = qr.getModuleCount();
+  let d = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+  return `<svg class="ev-ticket-qr" viewBox="-2 -2 ${n + 4} ${n + 4}" role="img" aria-label="QR code de l'événement" shape-rendering="crispEdges"><rect x="-2" y="-2" width="${n + 4}" height="${n + 4}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+}
+
 function playArtist(artist, index = 0) {
   if (!artist || !artist.tracks.length) return;
   window.playlist = artist.tracks.map(t => ({
@@ -166,9 +208,13 @@ function savedTicket(ev) {
           <div class="ev-ticket-name">${escapeHtml(eventName(ev))}</div>
           <div class="ev-ticket-place">${escapeHtml(place)}</div>
         </div>
+        ${eventQr(ev)}
         <span class="ev-ticket-more">${ms('more_vert')}</span>
       </a>
-      <a class="ev-ticket-bottom" href="#/event/${encodeURIComponent(ev.id)}">Voir le guide de l'événement</a>
+      <a class="ev-ticket-bottom" href="#/event/${encodeURIComponent(ev.id)}">
+        <span class="ev-ticket-guide">Voir le guide<span class="ev-g-long"> de l'événement</span></span>
+        ${hasTransit(ev) ? transitStrip(ev.transit) : ''}
+      </a>
     </div>`;
 }
 
@@ -312,6 +358,12 @@ export function renderEventDetail(container, id) {
           <button type="button" class="ev-guide-row" data-action="map">
             <span class="ev-guide-text"><small>${escapeHtml(ev.city || '')}</small><strong>${escapeHtml([ev.venue, ev.address].filter(Boolean).join(', '))}</strong></span>
             <span class="ev-guide-icon">${ms('location_on', true)}</span>
+          </button>
+          <button type="button" class="ev-guide-row ev-guide-transit" data-action="route">
+            <span class="ev-guide-text"><small>S'y rendre</small>${hasTransit(ev)
+              ? `<span class="tr-row">${ev.transit.stop ? stationSign(ev.transit.stop) : ''}${transitStrip(ev.transit)}</span>`
+              : '<strong>Itinéraire en transports en commun</strong>'}</span>
+            <span class="ev-guide-icon">${ms('directions_transit', true)}</span>
           </button>`}
         </div>
         <p class="ev-powered">Publié par ${MUZIKLY_MARK} Muzikly</p>
@@ -366,6 +418,7 @@ export function renderEventDetail(container, id) {
     if (action === 'share') shareEvent(ev);
     if (action === 'calendar') downloadIcs(ev);
     if (action === 'map') openMap(ev);
+    if (action === 'route') openRoute(ev);
     if (action === 'play-all') playArtist(artist, 0);
     if (action === 'play-track') { e.preventDefault(); playArtist(artist, Number(el.dataset.index)); }
   }));

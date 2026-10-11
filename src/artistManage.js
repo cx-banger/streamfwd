@@ -108,6 +108,18 @@ async function eventForm(el, ctx, ev) {
         <label class="as-place">Ville<input name="city" value="${escapeHtml(v.city || '')}" placeholder="ex. Paris"></label>
         <label class="as-place">Lieu<input name="venue" value="${escapeHtml(v.venue || '')}" placeholder="ex. Salle Pleyel"></label>
         <label class="as-place as-full">Adresse<input name="address" value="${escapeHtml(v.address || '')}" placeholder="ex. 252 rue du Faubourg Saint-Honoré"></label>
+        <label class="as-place">Accès : arrêt le plus proche <small>(facultatif)</small>
+          <input name="tr_stop" value="${escapeHtml(v.transit?.stop || '')}" placeholder="ex. Narbonne-Plage">
+        </label>
+        <label class="as-place">Transport
+          <select name="tr_mode">${[['train', 'Train'], ['rer', 'RER'], ['metro', 'Métro'], ['tram', 'Tram'], ['bus', 'Bus']].map(([k, l]) => `<option value="${k}"${(v.transit?.mode || 'bus') === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
+        </label>
+        <label class="as-place">Lignes <small>(séparées par des virgules)</small>
+          <input name="tr_lines" value="${escapeHtml((v.transit?.lines || []).join(', '))}" placeholder="ex. 166, 348D, 362C">
+        </label>
+        <label class="as-place">Marche depuis l’arrêt <small>(minutes)</small>
+          <input type="number" name="tr_walk" min="0" max="60" value="${escapeHtml(String(v.transit?.walk ?? ''))}" placeholder="ex. 6">
+        </label>
         <label class="as-full">Affiche
           <select name="image">
             <option value="">Affiche Muzikly par défaut</option>
@@ -148,6 +160,13 @@ async function eventForm(el, ctx, ev) {
       image: f.image || null, ticket_url: f.ticket_url || null,
       artist_id: ctx.artistId
     };
+    // Accès en transports (colonne « transit », voir supabase/espace-artiste/4_acces_transports.sql)
+    const lines = (f.tr_lines || '').split(',').map(x => x.trim()).filter(Boolean).slice(0, 6);
+    if (!isAlbum && (f.tr_stop || lines.length)) {
+      row.transit = { stop: f.tr_stop.trim() || null, mode: f.tr_mode, lines, walk: f.tr_walk ? Number(f.tr_walk) : null };
+    } else if (ev && 'transit' in ev) {
+      row.transit = null;
+    }
     if (ctx.account.is_admin) row.status = 'published';
     const q = ev
       ? ctx.sb.from('events').update(row).eq('id', ev.id)

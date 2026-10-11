@@ -69,6 +69,13 @@ leurs règles d'accès, et importe le contenu actuel du site (déjà publié).
 - Le public ne voit que ce qui est **publié**. Si Supabase ne répond pas, l'app affiche le contenu de
   `src/eventsData.js` et `src/videosData.js` (secours).
 
+## 6. Accès en transports (tickets des événements)
+
+Exécute `4_acces_transports.sql` dans le **SQL Editor** (une seule fois). Il ajoute la colonne `transit`
+à la table `events`. Le formulaire d'événement propose alors « Accès : arrêt le plus proche », le mode
+(train, RER, métro, tram, bus), les lignes et les minutes de marche. Ces infos s'affichent en bas du
+ticket des événements enregistrés et dans la fiche de l'événement (« S'y rendre »).
+
 ## Ce que voit l'artiste
 
 - Connexion avec son identifiant et son mot de passe.

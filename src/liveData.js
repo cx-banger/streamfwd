@@ -12,7 +12,7 @@ const clean = o => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== 
 export const toEvent = r => clean({
   id: r.id, type: r.type, artistId: r.artist_id, title: r.title, date: r.date, time: r.time,
   city: r.city, venue: r.venue, address: r.address, lat: r.lat, lng: r.lng,
-  image: r.image, ticketUrl: r.ticket_url, status: r.status
+  image: r.image, ticketUrl: r.ticket_url, transit: r.transit, status: r.status
 });
 
 export const toVideo = r => clean({
