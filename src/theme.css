@@ -145,7 +145,7 @@ button { font-family: var(--font); }
 .brand-name { font-size: 21px; font-weight: 700; letter-spacing: -0.5px; }
 .search-inline {
   flex: 1;
-  max-width: 480px;
+  max-width: 960px;
   height: 40px;
   display: flex;
   align-items: center;
