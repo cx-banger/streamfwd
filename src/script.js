@@ -7,6 +7,7 @@ import { renderPlaylistScreen, removedToast } from './playlistView.js';
 import { renderVideosPage, stopVideos } from './videos.js';
 import { renderArtistSpace } from './artistSpace.js';
 import { loadLiveData } from './liveData.js';
+import { SONS_URL, CANVAS_URL, installMediaFallback, preferGithub, supabaseFallback } from './media.js';
 import { renderEventsHome, renderEventDetail, renderArtistEvents, renderUpcomingSection, renderArtistEventBadge } from './events.js';
 
 /* === Configuration des ressources === */
@@ -16,14 +17,12 @@ import { renderEventsHome, renderEventDetail, renderArtistEvents, renderUpcoming
 // Option 2: GitHub raw (fallback)
 const GITHUB_BASE_URL = 'https://raw.githubusercontent.com/CX-Banger/cx-muzik/main';
 
-// URL de base pour les fichiers audio hébergés sur Supabase Storage
-const SUPABASE_STORAGE_URL = 'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/sons/';
+// Sons et vidéos canvas : GitHub Pages (cx-muzik/media), repli automatique sur Supabase — voir src/media.js
+installMediaFallback();
 
 // URL de base pour les paroles hébergées sur GitHub
 const LYRICS_BASE_URL = 'https://raw.githubusercontent.com/CX-Banger/cx-muzik/main/lyr';
 
-// URL de base pour les canvas hébergés sur Supabase Storage
-const SUPABASE_CANVAS_URL = 'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/canvas';
 
 /* === Artistes avec couleurs personnalisées === */
 const artistsConfig = [
@@ -63,7 +62,7 @@ let artists = artistsConfig.map((config, i) => ({
   tracks: trackTitles[i].map((title, j) => ({
     id: `son${j+1}`,
     title,
-    src: `${SUPABASE_STORAGE_URL}artiste${i+1}/son${j+1}.mp3`,
+    src: `${SONS_URL}/artiste${i+1}/son${j+1}.mp3`,
     cover: `${GITHUB_BASE_URL}/op/cv/artiste${i+1}/cover${j+1}.jpg`,
     canvasId: `artiste${i+1}/${j+1}`,
     video: null
@@ -226,8 +225,9 @@ function route(){
     return;
   }
   if (page === 'videos' || (page === 'video' && params[0])) {
-    renderVideosPage(document.getElementById('page-videos'), page === 'video' ? params[0] : null);
+    // La page doit être visible avant de construire le fil, pour pouvoir défiler jusqu'à la vidéo demandée
     renderPage('videos');
+    renderVideosPage(document.getElementById('page-videos'), page === 'video' ? params[0] : null);
     return;
   }
 
@@ -864,11 +864,9 @@ function doSearch(q){
 
 /* ===== Player functions ===== */
 function resolveSrc(src){
-  if(Array.isArray(src)){
-    // return first reachable — we assume first is local, second is fallback
-    return src[0] || src[1];
-  }
-  return src;
+  // Les anciennes adresses Supabase (likes, playlists, historique) passent par GitHub
+  if(Array.isArray(src)) return preferGithub(src[0] || src[1]);
+  return preferGithub(src);
 }
 
 /* ===== Lyrics Loading ===== */
@@ -997,10 +995,10 @@ function playHero() {
   playQueue([{
     title: 'Kill My Flesh',
     artist: 'Eilynn, Elihem',
-    src: 'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/sons/artiste5/son12.mp3',
+    src: `${SONS_URL}/artiste5/son12.mp3`,
     thumb: `${GITHUB_BASE_URL}/op/cv/artiste5/cover12.jpg`,
     canvasId: 'artiste5/12',
-    video: 'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/canvas/artiste10/2.mp4'
+    video: `${CANVAS_URL}/artiste10/2.mp4`
   }], 0);
 }
 if (heroArt) {
@@ -1088,7 +1086,9 @@ function handlePrev() {
 }
 
 window.audio = audio;
-window.SUPABASE_CANVAS_URL = SUPABASE_CANVAS_URL;
+window.preferGithub = preferGithub;
+window.supabaseFallback = supabaseFallback;
+window.SUPABASE_CANVAS_URL = CANVAS_URL;   // nom historique, utilisé par player.js
 window.artists = artists;
 window.savePlaylists = savePlaylists;
 window.renderPlaylists = renderPlaylists;

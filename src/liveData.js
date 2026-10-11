@@ -6,6 +6,7 @@
 import { sons } from './sonsClient.js';
 import { EVENTS } from './eventsData.js';
 import { VIDEOS } from './videosData.js';
+import { preferGithub } from './media.js';
 
 const clean = o => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined && v !== ''));
 
@@ -16,7 +17,7 @@ export const toEvent = r => clean({
 });
 
 export const toVideo = r => clean({
-  id: r.id, type: r.type, artistId: r.artist_id, title: r.title, url: r.url, poster: r.poster,
+  id: r.id, type: r.type, artistId: r.artist_id, title: r.title, url: preferGithub(r.url), poster: r.poster,   // vidéo servie par GitHub si copiée
   trackNo: r.track_no, date: r.date, eventId: r.event_id, status: r.status
 });
 

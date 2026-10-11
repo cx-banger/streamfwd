@@ -15,7 +15,7 @@
                  la fiche de l'événement affichera alors un bouton « Teaser »
    ===================================================================== */
 
-const CANVAS = 'https://hrzmagjjobctkfxayokt.supabase.co/storage/v1/object/public/canvas';
+import { CANVAS_URL as CANVAS } from './media.js';   // GitHub Pages, repli Supabase
 
 export const VIDEOS = [
   /* --- Extraits : les vraies vidéos « canvas » déjà en ligne sur Supabase --- */

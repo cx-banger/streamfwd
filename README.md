@@ -64,6 +64,14 @@ Le code est en JS sans framework, avec Vite. Les points d'entrée :
 
 Pour ajouter un titre : l'artiste envoie le MP3 depuis son Espace artiste, la pochette va dans le dépôt `cx-muzik` (`op/cv/artiste<n>/cover<k>.jpg`), puis on ajoute le titre à la bonne ligne de `trackTitles` dans `src/script.js`.
 
+Les sons et les vidéos sont lus depuis GitHub Pages (`cx-muzik/media/`), pour ne pas épuiser la bande passante gratuite de Supabase. Un fichier pas encore copié est lu sur Supabase automatiquement (`src/media.js`). Pour copier les nouveaux fichiers :
+
+```bash
+git clone https://github.com/CX-Banger/cx-muzik.git ../cx-muzik   # la première fois
+node outils/synchroniser-medias.mjs ../cx-muzik                   # ne copie que ce qui manque
+cd ../cx-muzik && git add media && git commit -m "Nouveaux médias" && git push
+```
+
 Le code ne contient que la clé publique Supabase. Les droits sont imposés côté base (Row Level Security). Les identifiants des artistes ne sont jamais versionnés : `comptes-artistes.txt` est dans `.gitignore`.
 
 Un workflow GitHub Actions interroge Supabase chaque jour pour que le projet gratuit ne se mette pas en pause.

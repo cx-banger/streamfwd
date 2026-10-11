@@ -151,7 +151,7 @@ function loadCanvas(track) {
     return;
   }
 
-  const canvasUrl = track.video || `${window.SUPABASE_CANVAS_URL}/${track.canvasId}.mp4`;
+  const canvasUrl = window.preferGithub(track.video) || `${window.SUPABASE_CANVAS_URL}/${track.canvasId}.mp4`;
   console.log('Tentative de chargement vidéo:', canvasUrl);
 
   fullPlayerCanvas.style.display = 'none';
@@ -596,6 +596,8 @@ window.audio.addEventListener('pause', () => {
 /* Fichier audio introuvable ou serveur injoignable : on prévient au lieu de rester muet */
 window.audio.addEventListener('error', () => {
   if (!window.audio.getAttribute('src')) return;
+  // Absent de GitHub : le repli sur Supabase prend le relais (src/media.js), pas d'alerte
+  if (window.supabaseFallback?.(window.audio.currentSrc || window.audio.src)) return;
   isPlaying = false;
   updatePlayPauseButtons();
   showToast('Ce titre est indisponible pour le moment', { icon: 'warning', duration: 3500 });

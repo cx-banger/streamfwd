@@ -8,6 +8,7 @@
 
 import { VIDEOS } from './videosData.js';
 import { escapeHtml, shareLink } from './ui.js';
+import { withFallback, preferGithub } from './media.js';
 
 const ms = (name, fill = false) => `<span class="ms${fill ? ' ms-fill' : ''}">${name}</span>`;
 
@@ -26,14 +27,14 @@ let current = null;         // diapo actuellement à l'écran
 
 /* Les extraits (« canvas ») sont muets : on joue le titre de l'artiste à la place,
    comme le son d'un Reel. Un seul lecteur réutilisé pour tout le fil. */
-const feedAudio = new Audio();
+const feedAudio = withFallback(new Audio());
 feedAudio.loop = true;
 feedAudio.preload = 'auto';
 
 /* ---------- Données ---------- */
 const artistOf = v => (window.artists || []).find(a => a.id === v.artistId) || null;
 const trackOf = v => { const a = artistOf(v); return a && v.trackNo ? a.tracks[v.trackNo - 1] || null : null; };
-const trackSrc = t => (Array.isArray(t.src) ? t.src[0] : t.src);
+const trackSrc = t => preferGithub(Array.isArray(t.src) ? t.src[0] : t.src);
 /* Son du titre pour les extraits (vidéos sans piste audio) ; les clips, teasers et lives gardent leur propre son */
 const usesTrackSound = v => v.type === 'extrait' && !!trackOf(v) && !youtubeId(v.url);
 const posterOf = v => v.poster || trackOf(v)?.cover || artistOf(v)?.photo || '';
