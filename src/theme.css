@@ -1737,3 +1737,8 @@ button.avatar-btn:hover { box-shadow: 0 0 0 3px rgba(255, 255, 255, .15); }
 #createPlaylistBtn:hover { background: #ef5a4a; }
 #createPlaylistBtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #9c2f23; }
 #createPlaylistBtn .ms { color: #fff; font-size: 20px; }
+
+/* Lecteur plein écran sur ordinateur : pochette plus petite */
+@media (min-width: 901px) {
+  .full-player-cover { width: min(360px, 40vh, 100%); }
+}
