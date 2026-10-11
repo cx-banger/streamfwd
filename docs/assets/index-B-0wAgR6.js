@@ -365,7 +365,7 @@ ${P}`}class se extends Error{constructor({message:e,code:r,cause:s,name:i}){var 
               ${m?`<img src="${m.photo}" alt="" loading="lazy">`:""}<span>${k(g)}</span>
             </button>`}).join("")}
         </div>
-        ${!i&&o?`<button type="button" class="pl-delete" data-action="delete">${Ie("delete")}Supprimer la playlist</button>`:""}
+        ${!i&&o?`<button type="button" class="pl-delete" data-action="delete">${Ie("delete")}<span>Supprimer la playlist</span></button>`:""}
       </div>
 
       <div class="pl-body">

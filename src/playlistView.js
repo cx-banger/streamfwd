@@ -125,7 +125,7 @@ export function renderPlaylistScreen(container, opts) {
             </button>`;
           }).join('')}
         </div>
-        ${!liked && onDelete ? `<button type="button" class="pl-delete" data-action="delete">${ms('delete')}Supprimer la playlist</button>` : ''}
+        ${!liked && onDelete ? `<button type="button" class="pl-delete" data-action="delete">${ms('delete')}<span>Supprimer la playlist</span></button>` : ''}
       </div>
 
       <div class="pl-body">

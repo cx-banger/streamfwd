@@ -224,3 +224,59 @@ body.pl-mode .main, body.pl-mode .pages { background: #121212; }
 .lib-text strong { font-size: 17px; letter-spacing: -0.02em; }
 .sidebar-playlist strong { letter-spacing: -0.01em; }
 @media (max-width: 400px) { .pl-h1 { font-size: 38px; } }
+
+/* =====================================================================
+   En-tête des playlists : bannière pixel art Muzikly (logo + onde) en fond
+   à la place du gris sombre. Un voile sombre garde les textes lisibles et
+   fond la bannière dans la liste.
+   ===================================================================== */
+.pl-screen { --pl-banner-h: 260px; }
+.pl-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--pl-banner-h);
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .15) 0%, rgba(0, 0, 0, .35) 60%, var(--pl-bg) 100%),
+    url('/img/banniere-playlist.svg') left center / cover no-repeat;
+  pointer-events: none;
+}
+.pl-bar, .pl-head { position: relative; background: transparent; }
+.pl-bar { position: sticky; z-index: 5; transition: background .2s; }
+.pl-bar.scrolled { background: var(--pl-head); }
+.pl-head { z-index: 1; }
+.pl-h1, .pl-count { text-shadow: 0 1px 6px rgba(0, 0, 0, .45); }
+@media (max-width: 600px) {
+  .pl-screen { --pl-banner-h: 210px; }
+  .pl-screen::before {
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, .15) 0%, rgba(0, 0, 0, .35) 50%, var(--pl-bg) 100%),
+      url('/img/banniere-playlist.svg') left top / auto 100% no-repeat,
+      var(--pl-bg);
+  }
+}
+/* La bannière passe derrière tout le contenu (libellés « Plus ancien », liste…) */
+.pl-screen { isolation: isolate; }
+.pl-screen::before { z-index: -1; }
+/* Pastilles (vue, artistes) sans fond gris : posées directement sur la bannière */
+.pl-chip:not(.on) { background: transparent !important; text-shadow: 0 1px 4px rgba(0, 0, 0, .5); }
+.pl-chip:not(.on):hover { background: rgba(255, 255, 255, .12) !important; }
+.pl-chip:not(.on) .ms { filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .5)); }
+/* « Supprimer la playlist » : à droite, à hauteur des pastilles (la liste remonte d'autant) */
+.pl-head:has(.pl-delete) { position: relative; }
+.pl-delete {
+  position: absolute;
+  right: 16px;
+  bottom: 34px;
+  margin: 0;
+  color: rgba(255, 255, 255, .8) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .5);
+}
+.pl-head:has(.pl-delete) .pl-chips { padding-right: 210px; }
+@media (max-width: 600px) {
+  .pl-delete span:not(.ms) { display: none; }        /* icône seule sur mobile */
+  .pl-delete .ms { font-size: 22px; }
+  .pl-head:has(.pl-delete) .pl-chips { padding-right: 48px; }
+}
