@@ -1720,3 +1720,20 @@ button.avatar-btn:hover { box-shadow: 0 0 0 3px rgba(255, 255, 255, .15); }
 .chip.selected { background: #e74b3b; color: #fff; box-shadow: 0 3px 0 #9c2f23; }
 .chip:active { transform: translateY(2px); box-shadow: 0 1px 0 #22201e; }
 .chip.selected:active { box-shadow: 0 1px 0 #9c2f23; }
+
+/* Bibliothèque : bouton « Créer » au style des pastilles (comme « Tout » sélectionné) */
+#createPlaylistBtn {
+  height: auto;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #e74b3b;
+  color: #fff;
+  font-family: 'Figtree', var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 3px 0 #9c2f23;
+}
+#createPlaylistBtn:hover { background: #ef5a4a; }
+#createPlaylistBtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #9c2f23; }
+#createPlaylistBtn .ms { color: #fff; font-size: 20px; }
