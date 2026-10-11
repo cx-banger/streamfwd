@@ -74,7 +74,7 @@ export async function initVideoManager(artists) {
         const videoPath = input.value.trim();
 
         if (!videoPath) {
-          showToast('Entre un chemin de vidéo valide', { icon: 'fa-circle-exclamation' });
+          showToast('Entre un chemin de vidéo valide', { icon: 'error' });
           return;
         }
 
@@ -82,7 +82,7 @@ export async function initVideoManager(artists) {
         try {
           await saveVideoForTrack(artistName, trackTitle, fullUrl);
         } catch {
-          showToast('Échec de l\'enregistrement (es-tu connecté ?)', { icon: 'fa-circle-exclamation' });
+          showToast('Échec de l\'enregistrement (es-tu connecté ?)', { icon: 'error' });
           return;
         }
 

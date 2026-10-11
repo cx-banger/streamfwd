@@ -3,6 +3,8 @@
 import { initVideoManager, loadAllVideos } from './videoManager.js';
 import { initUpcomingShorts, handleUpcomingPageOpen, closeUpcomingIfOpen } from './upcoming.js';
 import { showToast, escapeHtml, shareLink } from './ui.js';
+import { renderPlaylistScreen, removedToast } from './playlistView.js';
+import { renderEventsHome, renderEventDetail, renderArtistEvents, renderUpcomingSection, renderArtistEventBadge } from './events.js';
 
 /* === Configuration des ressources === */
 // URL de base pour les images hébergées sur GitHub
@@ -141,9 +143,6 @@ function renderPage(id){
   document.querySelector('.pages')?.scrollTo(0, 0);
   if (id !== 'artist') document.title = 'Muzikly - ConnexionBanger';
 
-  if (id === 'upcoming') {
-    handleUpcomingPageOpen();
-  }
   if (id === 'videos') {
     initVideoManager(artists);
   }
@@ -187,10 +186,43 @@ function route(){
     }
   }
 
+  // Événements (façon Shazam) : accueil, fiche, liste d'un artiste
+  const eventsPage = document.getElementById('page-upcoming');
+  document.body.classList.toggle('pl-mode', page === 'liked' || page === 'playlist');
+  document.body.classList.toggle('events-mode', ['upcoming', 'event', 'events'].includes(page));
+  if (page === 'upcoming') {
+    renderEventsHome(eventsPage);
+    renderPage('upcoming');
+    return;
+  }
+  if (page === 'event' && params[0]) {
+    renderEventDetail(eventsPage, params[0]);
+    renderPage('upcoming');
+    return;
+  }
+  if (page === 'events' && params[0] === 'artist') {
+    renderArtistEvents(eventsPage, params[1]);
+    renderPage('upcoming');
+    return;
+  }
+
   if (page === 'search' && params[0]) {
     renderPage('search');
     searchInput.value = params[0];
     doSearch(params[0]);
+    return;
+  }
+
+  if (page === 'liked') {
+    renderLikedTracks();
+    renderPage('liked');
+    return;
+  }
+  if (page === 'playlist' && params[0]) {
+    renderOpenPlaylist(params[0]);
+    renderPage('playlist');
+    navBtns.forEach(b => b.classList.toggle('active', b.dataset.page === 'playlists'));
+    bottomBtns.forEach(b => b.classList.toggle('active', b.dataset.page === 'playlists'));
     return;
   }
 
@@ -205,7 +237,7 @@ bottomBtns.forEach(b=>{
 });
 
 document.querySelectorAll('[data-soon]').forEach(b=>{
-  b.addEventListener('click', ()=> showToast(`${b.dataset.soon} arrive bientôt !`, { icon: 'fa-hourglass-half' }));
+  b.addEventListener('click', ()=> showToast(`${b.dataset.soon} arrive bientôt !`, { icon: 'hourglass_top' }));
 });
 
 /* La recherche du bandeau ouvre la page Recherche et met à jour l'URL sans empiler l'historique */
@@ -227,7 +259,7 @@ function getBadgesHTML(badges) {
 
   const badgeElements = badges.map(badgeFileName => {
     const badgeUrl = `${BADGE_BASE_URL}/${badgeFileName}.svg`;
-    return `<span class="artist-badge"><img src="${badgeUrl}" alt="${badgeFileName}" loading="lazy"></span>`;
+    return `<span class="artist-badge" title="${badgeFileName}"><img src="${badgeUrl}" alt="" loading="lazy" onerror="this.parentElement.remove()"></span>`;
   }).join('');
 
   return `<div class="artist-badges">${badgeElements}</div>`;
@@ -235,30 +267,24 @@ function getBadgesHTML(badges) {
 
 /* ===== Render artistes ===== */
 function renderArtists(){
-  artistsGrid.innerHTML='';
-  artists.forEach(a=>{
-    const card = document.createElement('div');
-    card.className = 'artist-card';
-    card.style.backgroundColor = a.bgColor;
-    card.innerHTML = `
-    <img src="${a.photo}" class="avatar" alt="${escapeHtml(a.name)}" loading="lazy">
-    <div class="artist-info">
-      <h3>${escapeHtml(a.name)}</h3>
-      <p>${escapeHtml(a.bio)}</p>
-    </div>
-    ${getBadgesHTML(a.badges)}
-    `;
+  artistsGrid.replaceChildren(...artists.map(createArtistCircle));
+}
 
-    card.addEventListener('mouseenter', ()=> {
-      card.style.backgroundColor = a.bgColorHover;
-    });
-    card.addEventListener('mouseleave', ()=> {
-      card.style.backgroundColor = a.bgColor;
-    });
+function trackCountLabel(a) {
+  return `${a.tracks.length} titre${a.tracks.length > 1 ? 's' : ''}`;
+}
 
-    card.addEventListener('click', ()=> goToArtist(a));
-    artistsGrid.appendChild(card);
-  });
+/* Carte ronde d'artiste (photo ronde, nom, nombre de titres) */
+function createArtistCircle(a) {
+  const card = document.createElement('a');
+  card.className = 'artist-circle';
+  card.href = `#/artist/${a.id}`;
+  card.innerHTML = `
+    <img src="${a.photo}" alt="" loading="lazy">
+    <span class="artist-circle-name">${escapeHtml(a.name)}</span>
+    <span class="artist-circle-sub">${trackCountLabel(a)}</span>
+  `;
+  return card;
 }
 
 /* ===== Page Recherche : vue par défaut (avant de taper) ===== */
@@ -284,19 +310,108 @@ function createAlbumCard({ artist, track }) {
   const card = document.createElement('div');
   card.className = 'search-album-card';
   card.innerHTML = `
-    <img src="${track.cover}" alt="${escapeHtml(track.title)}" loading="lazy">
+    <div class="cover-wrap">
+      <img src="${track.cover}" alt="${escapeHtml(track.title)}" loading="lazy">
+      <span class="card-play" aria-hidden="true"><span class="ms ms-fill">play_arrow</span></span>
+    </div>
     <div class="search-album-info">
       <div class="search-album-title">${escapeHtml(track.title)}</div>
-      <div class="search-album-artist">${escapeHtml(artist.name)}</div>
+      <div class="search-album-artist">${escapeHtml(artist.name)} • Titre</div>
     </div>
   `;
   card.addEventListener('click', () => {
     window.playlist = artist.tracks.map(t => toQueueItem(artist, t));
     loadAndPlay(artist.tracks.indexOf(track));
-    window.openFullPlayer?.();
   });
   return card;
 }
+
+/* ===== Accueil façon YouTube Music ===== */
+let homeFilter = null; // null = « Tout », sinon l'id de l'artiste choisi dans les puces
+
+function allTracks() {
+  return artists.flatMap(a => a.tracks.map(t => ({ artist: a, track: t })));
+}
+
+/* Mélange stable (le même chaque jour) pour que la « Sélection rapide » change d'un jour à l'autre */
+function dailyShuffle(list) {
+  let seed = Number(new Date().toISOString().slice(0, 10).replace(/-/g, ''));
+  const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  return list.map(x => [rand(), x]).sort((p, q) => p[0] - q[0]).map(p => p[1]);
+}
+
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('history') || '[]'); } catch { return []; }
+}
+
+function renderHome() {
+  // Puces de filtre : « Tout » puis chaque artiste
+  const chips = document.getElementById('homeChips');
+  const makeChip = (label, id) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip' + (homeFilter === id ? ' selected' : '');
+    chip.textContent = label;
+    chip.addEventListener('click', () => { homeFilter = id; renderHome(); });
+    return chip;
+  };
+  chips.replaceChildren(makeChip('Tout', null), ...artists.map(a => makeChip(a.name, a.id)));
+
+  const pool = homeFilter === null ? allTracks() : allTracks().filter(x => x.artist.id === homeFilter);
+
+  // Écouter à nouveau : l'historique d'écoute, sinon la sélection éditoriale
+  const history = getHistory()
+    .map(h => findTrack(h.artist, h.title))
+    .filter(Boolean)
+    .filter(x => homeFilter === null || x.artist.id === homeFilter);
+  const fallback = featuredPicks.map(([an, ti]) => findTrack(an, ti)).filter(Boolean)
+    .filter(x => homeFilter === null || x.artist.id === homeFilter);
+  const again = (history.length ? history : (fallback.length ? fallback : pool)).slice(0, 12);
+  document.getElementById('homeListenAgain').replaceChildren(...again.map(createAlbumCard));
+
+  // Sélection rapide : grille de titres en lignes (4 par colonne)
+  const quick = (homeFilter === null ? dailyShuffle(pool) : pool).slice(0, 16);
+  const quickQueue = quick.map(x => toQueueItem(x.artist, x.track));
+  document.getElementById('homeQuickPicks').replaceChildren(...quick.map((x, i) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'quick-item';
+    item.dataset.key = trackKey(quickQueue[i]);
+    item.innerHTML = `
+      <span class="quick-thumb"><img src="${x.track.cover}" alt="" loading="lazy"><span class="ms ms-fill">play_arrow</span></span>
+      <span class="quick-text">
+        <span class="quick-title">${escapeHtml(x.track.title)}</span>
+        <span class="quick-sub">${escapeHtml(x.artist.name)}</span>
+      </span>`;
+    item.addEventListener('click', () => { window.playlist = quickQueue.slice(); loadAndPlay(i); });
+    return item;
+  }));
+  document.getElementById('quickPlayAll').onclick = () => { window.playlist = quickQueue.slice(); loadAndPlay(0); };
+
+  // Derniers sons : le dernier titre de chaque artiste
+  const latest = (homeFilter === null ? artists : artists.filter(a => a.id === homeFilter))
+    .filter(a => a.tracks.length)
+    .flatMap(a => homeFilter === null ? [{ artist: a, track: a.tracks[a.tracks.length - 1] }] : a.tracks.slice().reverse().map(t => ({ artist: a, track: t })));
+  document.getElementById('homeLatest').replaceChildren(...latest.map(createAlbumCard));
+
+  updatePlayingState();
+}
+
+/* Flèches ‹ › des étagères : font défiler la rangée d'une « page » */
+document.querySelectorAll('[data-scroll]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const row = document.getElementById(btn.dataset.scroll);
+    row.scrollBy({ left: Number(btn.dataset.dir) * row.clientWidth * 0.8, behavior: 'smooth' });
+  });
+});
+
+/* Barre latérale : repliée en rail d'icônes ou dépliée (choix mémorisé) */
+const sidebarToggle = document.getElementById('sidebarToggle');
+try { if (localStorage.getItem('sidebar') === 'collapsed') document.body.classList.add('sidebar-collapsed'); } catch {}
+sidebarToggle?.addEventListener('click', () => {
+  const collapsed = document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebar', collapsed ? 'collapsed' : 'expanded'); } catch {}
+});
 
 function renderSearchHome() {
   const recentGrid = document.getElementById('listenAgainGrid');
@@ -308,16 +423,7 @@ function renderSearchHome() {
     .filter(a => a.tracks.length > 0)
     .map(a => createAlbumCard({ artist: a, track: a.tracks[a.tracks.length - 1] })));
 
-  artistsCircleGrid.replaceChildren(...artists.map(a => {
-    const card = document.createElement('div');
-    card.className = 'search-artist-card';
-    card.innerHTML = `
-      <img src="${a.photo}" alt="${escapeHtml(a.name)}" loading="lazy">
-      <div class="search-artist-name">${escapeHtml(a.name)}</div>
-    `;
-    card.addEventListener('click', () => goToArtist(a));
-    return card;
-  }));
+  artistsCircleGrid.replaceChildren(...artists.map(createArtistCircle));
 
   mixedGrid.replaceChildren(...featuredPicks
     .map(([artistName, title]) => findTrack(artistName, title))
@@ -354,10 +460,10 @@ function toggleLike(t){
   const i = liked.findIndex(s => trackKey(s) === key);
   if (i >= 0) {
     liked.splice(i, 1);
-    showToast('Retiré des Sons likés', { icon: 'fa-heart-crack' });
+    showToast('Retiré des Sons likés', { icon: 'heart_broken' });
   } else {
-    liked.push({ title: t.title, artist: t.artist, src: t.src, thumb: t.thumb || '', canvasId: t.canvasId, video: t.video, duration: t.duration });
-    showToast('Ajouté aux Sons likés', { icon: 'fa-heart' });
+    liked.push({ title: t.title, artist: t.artist, src: t.src, thumb: t.thumb || '', canvasId: t.canvasId, video: t.video, duration: t.duration, addedAt: Date.now() });
+    showToast('Ajouté aux Sons likés', { icon: 'favorite' });
   }
   window.likedSongs = liked;
   savePlaylists();
@@ -372,7 +478,7 @@ function refreshLikeButtons(){
     const row = btn.closest('.track-row');
     const on = (window.userPlaylists[LIKED] || []).some(s => trackKey(s) === row.dataset.key);
     btn.classList.toggle('liked', on);
-    btn.querySelector('i').className = `${on ? 'fas' : 'far'} fa-heart`;
+    btn.querySelector('.ms').classList.toggle('ms-fill', on);
   });
   window.updateLikeUI?.();
 }
@@ -406,9 +512,9 @@ function loadTrackDuration(audioSrc, callback) {
 /* ===== Ligne de titre commune (artiste, playlists, sons likés) =====
    action : 'like' (cœur), 'unlike' (retirer des likés) ou 'remove' (retirer de la playlist) */
 const ROW_ACTIONS = {
-  like:   { cls: 'like-btn',   icon: 'far fa-heart', title: 'Ajouter aux favoris' },
-  unlike: { cls: 'unlike-btn', icon: 'fas fa-heart', title: 'Ne plus aimer' },
-  remove: { cls: 'del-btn',    icon: 'fas fa-trash', title: 'Retirer de la playlist' }
+  like:   { cls: 'like-btn',   icon: '<span class="ms">favorite</span>',         title: 'Ajouter aux favoris' },
+  unlike: { cls: 'unlike-btn', icon: '<span class="ms ms-fill">favorite</span>', title: 'Ne plus aimer' },
+  remove: { cls: 'del-btn',    icon: '<span class="ms">delete</span>',           title: 'Retirer de la playlist' }
 };
 
 function createTrackRow(t, idx, { action, onPlay, onAction }) {
@@ -424,7 +530,7 @@ function createTrackRow(t, idx, { action, onPlay, onAction }) {
   row.innerHTML = `
     <div class="track-col-number">
       <span class="track-number-text">${idx + 1}</span>
-      <i class="fas fa-play track-play-icon"></i>
+      <span class="ms ms-fill track-play-icon">play_arrow</span>
     </div>
     <div class="track-col-title">
       ${thumbHTML}
@@ -437,7 +543,7 @@ function createTrackRow(t, idx, { action, onPlay, onAction }) {
     <div class="track-col-duration">
       <div class="track-actions">
         <button class="track-action-btn ${act.cls}" title="${act.title}" aria-label="${act.title}">
-          <i class="${act.icon}"></i>
+          ${act.icon}
         </button>
       </div>
       <span class="track-duration-text">${t.duration || '0:00'}</span>
@@ -466,116 +572,102 @@ function createTrackRow(t, idx, { action, onPlay, onAction }) {
 function playQueue(items, idx) {
   window.playlist = items.slice();
   loadAndPlay(idx);
-  window.openFullPlayer?.();
+  if (window.matchMedia('(max-width: 900px)').matches) window.openFullPlayer?.();
+}
+
+function renderSidebarPlaylists(){
+  const box = document.getElementById('sidebarPlaylists');
+  if (!box) return;
+  const liked = (window.userPlaylists[LIKED] || []).length;
+  const entries = [
+    { name: 'Sons likés', sub: `Playlist auto • ${liked} titre${liked > 1 ? 's' : ''}`, href: '#/liked' },
+    ...Object.keys(window.userPlaylists).filter(pl => pl !== LIKED).map(pl => ({
+      name: pl, sub: `Playlist • ${window.userPlaylists[pl].length} titre${window.userPlaylists[pl].length > 1 ? 's' : ''}`, href: `#/playlist/${encodeURIComponent(pl)}`
+    }))
+  ];
+  box.replaceChildren(...entries.map(e => {
+    const a = document.createElement('a');
+    a.className = 'sidebar-playlist';
+    a.href = e.href;
+    a.innerHTML = `<strong>${escapeHtml(e.name)}</strong><small>${escapeHtml(e.sub)}</small>`;
+    return a;
+  }));
+}
+
+/* ===== Bibliothèque : liste des playlists (Sons likés en premier) ===== */
+function playlistCover(items, name) {
+  const thumbs = items.map(t => t.thumb).filter(Boolean);
+  if (thumbs.length >= 4) return `<span class="lib-cover lib-mosaic">${thumbs.slice(0, 4).map(s => `<img src="${s}" alt="" loading="lazy">`).join('')}</span>`;
+  if (thumbs.length) return `<span class="lib-cover"><img src="${thumbs[0]}" alt="" loading="lazy"></span>`;
+  return `<span class="lib-cover lib-letter">${escapeHtml(name.charAt(0).toUpperCase())}</span>`;
 }
 
 function renderPlaylists(){
+  renderSidebarPlaylists();
   const list = playlistListDiv;
-  list.innerHTML = '';
-
-  const colors = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5', 'color-6', 'color-7', 'color-8', 'color-9', 'color-10'];
-  const names = Object.keys(window.userPlaylists).filter(pl => pl !== LIKED);
-
-  if (names.length === 0) {
-    list.innerHTML = '<p class="empty-state">Crée ta première playlist avec le champ ci-dessus.</p>';
-  }
-
-  names.forEach((pl, i) => {
-    const card = document.createElement('div');
-    card.className = 'playlist-card';
-    const count = window.userPlaylists[pl].length;
-
-    card.innerHTML = `
-      <div class="playlist-cover ${colors[i % colors.length]}">
-        ${escapeHtml(pl.charAt(0).toUpperCase())}
-      </div>
-      <div class="playlist-card-info">
-        <strong>${escapeHtml(pl)}</strong>
-        <small>${count} titre${count > 1 ? 's' : ''}</small>
-      </div>
-      <div style="display: flex; gap: 8px; margin-top: auto;">
-        <button class="open">Ouvrir</button>
-        <button class="del" aria-label="Supprimer la playlist">🗑</button>
-      </div>
-    `;
-
-    card.querySelector('.open').addEventListener('click', () => renderPlaylistTracks(pl));
-    card.querySelector('.del').addEventListener('click', () => {
-      if (confirm(`Supprimer la playlist "${pl}" ?`)) {
-        delete window.userPlaylists[pl];
-        if (openPlaylistName === pl) openPlaylistName = null;
-        savePlaylists();
-        renderPlaylists();
-        showToast(`Playlist "${pl}" supprimée`, { icon: 'fa-trash' });
-      }
-    });
-    list.appendChild(card);
-  });
-
-  // Réaffiche la playlist ouverte, sinon les sons likés
-  if (openPlaylistName && window.userPlaylists[openPlaylistName]) {
-    renderPlaylistTracks(openPlaylistName);
-  } else if ((window.userPlaylists[LIKED] || []).length > 0) {
-    renderPlaylistTracks(LIKED);
-  } else {
-    playlistTracksDiv.innerHTML = '';
-  }
-  renderLikedTracks();
-}
-
-function renderPlaylistTracks(plName){
-  openPlaylistName = plName === LIKED ? null : plName;
-  const container = playlistTracksDiv;
-  const headerHTML = plName === LIKED ? '' : `<h3 style="margin-bottom: 20px;">${escapeHtml(plName)}</h3>`;
-  container.innerHTML = `${headerHTML}
-    <div class="tracks-table-header">
-      <div class="track-col-number">#</div>
-      <div class="track-col-title">Titre</div>
-      <div class="track-col-album">Artiste</div>
-      <div class="track-col-duration"><i class="far fa-clock"></i></div>
-    </div>`;
-
-  const tableBody = document.createElement('div');
-  tableBody.className = 'tracks-table-body';
-  const items = window.userPlaylists[plName];
-
-  if (items.length === 0) {
-    tableBody.innerHTML = '<p class="empty-state">Cette playlist est vide. Ajoute des titres depuis le lecteur (menu ⋯).</p>';
-  }
-
-  items.forEach((t, idx) => {
-    tableBody.appendChild(createTrackRow(t, idx, {
-      action: plName === LIKED ? 'unlike' : 'remove',
-      onPlay: () => playQueue(items, idx),
-      onAction: () => {
-        if (plName === LIKED) return toggleLike(t);
-        items.splice(idx, 1);
-        savePlaylists();
-        renderPlaylists();
-      }
-    }));
-  });
-
-  container.appendChild(tableBody);
-  updatePlayingState();
-}
-
-function renderLikedTracks(){
   const liked = window.userPlaylists[LIKED] || [];
-  likedTracksDiv.innerHTML = '';
-  if(liked.length === 0){
-    likedTracksDiv.innerHTML = '<p class="empty-state">Aucun son liké pour l\'instant. Touche le cœur ♡ d\'un titre pour le retrouver ici.</p>';
+  const names = Object.keys(window.userPlaylists).filter(pl => pl !== LIKED);
+  const count = n => `${n} titre${n > 1 ? 's' : ''}`;
+
+  list.innerHTML = `
+    <a class="lib-row" href="#/liked">
+      <span class="lib-cover lib-liked"><span class="ms ms-fill">favorite</span></span>
+      <span class="lib-text"><strong>Sons likés</strong><small>Playlist automatique · ${count(liked.length)}</small></span>
+      <span class="ms lib-chevron">chevron_right</span>
+    </a>
+    ${names.map(pl => `
+    <a class="lib-row" href="#/playlist/${encodeURIComponent(pl)}">
+      ${playlistCover(window.userPlaylists[pl], pl)}
+      <span class="lib-text"><strong>${escapeHtml(pl)}</strong><small>Playlist · ${count(window.userPlaylists[pl].length)}</small></span>
+      <span class="ms lib-chevron">chevron_right</span>
+    </a>`).join('')}
+    ${names.length ? '' : '<p class="empty-state">Crée ta première playlist avec le champ ci-dessus.</p>'}`;
+
+  // Met à jour l'écran ouvert (Sons likés ou playlist)
+  const [page, param] = location.hash.replace(/^#\/?/, '').split('/');
+  if (page === 'liked') renderLikedTracks();
+  if (page === 'playlist' && param) renderOpenPlaylist(decodeURIComponent(param));
+}
+
+/* Écran « Sons likés » */
+function renderLikedTracks(){
+  renderPlaylistScreen(document.getElementById('page-liked'), {
+    name: 'Sons likés',
+    items: window.userPlaylists[LIKED] || [],
+    liked: true,
+    backHref: '#/playlists',
+    onRemove: (t) => toggleLike(t)
+  });
+}
+
+/* Écran d'une playlist */
+function renderOpenPlaylist(name){
+  const el = document.getElementById('page-playlist');
+  const items = window.userPlaylists[name];
+  if (!items) {
+    el.innerHTML = '<p class="empty-state" style="padding:24px 0">Cette playlist n’existe plus.</p>';
     return;
   }
-
-  liked.forEach((t, idx) => {
-    likedTracksDiv.appendChild(createTrackRow(t, idx, {
-      action: 'unlike',
-      onPlay: () => playQueue(liked, idx),
-      onAction: () => toggleLike(t)
-    }));
+  renderPlaylistScreen(el, {
+    name,
+    items,
+    backHref: '#/playlists',
+    onRemove: (t) => {
+      const i = items.indexOf(t);
+      if (i >= 0) items.splice(i, 1);
+      savePlaylists();
+      renderPlaylists();
+      removedToast(name);
+    },
+    onDelete: () => {
+      if (!confirm(`Supprimer la playlist "${name}" ?`)) return;
+      delete window.userPlaylists[name];
+      savePlaylists();
+      renderPlaylists();
+      showToast(`Playlist "${name}" supprimée`, { icon: 'delete' });
+      navigate('/playlists');
+    }
   });
-  updatePlayingState();
 }
 
 /* ===== Artist Page ===== */
@@ -651,7 +743,11 @@ function openArtist(a){
 
   artistPageBanner.style.setProperty('--artist-bg', `url('${a.photo}')`);
   artistPageName.textContent = a.name;
-  artistPageBio.textContent = a.bio;
+  artistPageBio.textContent = trackCountLabel(a);
+  renderArtistEventBadge(document.getElementById('artistEventBadge'), a);
+  const avatar = document.getElementById('artistPageAvatar');
+  avatar.src = a.photo;
+  avatar.alt = a.name;
 
   artistTracksList.innerHTML = '';
   const items = a.tracks.map(t => toQueueItem(a, t));
@@ -679,6 +775,16 @@ if(artistPlayBtn) {
     }
   });
 }
+
+document.getElementById('artistShuffleBtn')?.addEventListener('click', () => {
+  const a = window.currentArtistData;
+  if (!a || a.tracks.length === 0) return;
+  window.playlist = a.tracks.map(t => toQueueItem(a, t));
+  window.isShuffle = true;
+  window.updateFullPlayerUI?.();
+  loadAndPlay(Math.floor(Math.random() * a.tracks.length));
+  showToast('Lecture aléatoire activée', { icon: 'shuffle' });
+});
 
 document.getElementById('artistShareBtn')?.addEventListener('click', () => {
   const a = window.currentArtistData;
@@ -718,7 +824,7 @@ function doSearch(q){
     card.innerHTML = `<div style="display:flex;gap:12px;align-items:center">
                         <img src="${r.thumb}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;" alt="" loading="lazy">
                         <div><div class="title">${escapeHtml(r.title)}</div><div class="sub">${escapeHtml(r.artist)}</div></div></div>
-                      <div><button class="play-btn" aria-label="Lire ${escapeHtml(r.title)}"><i class="fas fa-play"></i></button></div>`;
+                      <div><button class="play-btn" aria-label="Lire ${escapeHtml(r.title)}"><span class="ms ms-fill">play_arrow</span></button></div>`;
     // Toute la carte est cliquable, et la suite des résultats forme la file de lecture
     card.addEventListener('click', ()=> playQueue(results, idx));
     searchResultsDiv.appendChild(card);
@@ -744,12 +850,22 @@ function resolveSrc(src){
 /* ===== Lyrics Loading ===== */
 const NO_LYRICS = '<p class="lyrics-placeholder">Les paroles ne sont pas encore disponibles pour ce titre.</p>';
 
+/* Aperçu de la première ligne des paroles dans l'onglet « Paroles » du lecteur */
+function setLyricsExcerpt(container) {
+  const el = document.getElementById('lyricsExcerpt');
+  if (!el) return;
+  const first = container && [...container.querySelectorAll('p:not(.lyrics-placeholder)')].find(p => p.textContent.trim());
+  el.textContent = first ? first.textContent.trim() : 'Pas encore de paroles pour ce titre';
+  el.classList.toggle('has-lyrics', !!first);
+}
+
 async function loadLyrics(track) {
   const lyricsContentDiv = document.getElementById('lyricsContent');
 
   if (!lyricsContentDiv) return;
 
   lyricsContentDiv.innerHTML = '<p class="lyrics-placeholder">Chargement des paroles...</p>';
+  setLyricsExcerpt(null);
 
   try {
     // On cherche d'abord chez l'artiste du titre (deux artistes peuvent avoir un titre identique)
@@ -795,6 +911,7 @@ async function loadLyrics(track) {
     }
 
     lyricsContentDiv.innerHTML = lyricsHTML || NO_LYRICS;
+    setLyricsExcerpt(lyricsContentDiv);
 
   } catch (error) {
     console.error('Erreur lors du chargement des paroles:', error);
@@ -834,7 +951,7 @@ function loadAndPlay(i){
 function updatePlayingState() {
   const current = window.playlist[window.currentIndex];
   const key = current ? trackKey(current) : null;
-  document.querySelectorAll('.track-row').forEach(r => {
+  document.querySelectorAll('.track-row, .quick-item, .pl-row').forEach(r => {
     r.classList.toggle('playing', key !== null && r.dataset.key === key);
   });
 }
@@ -844,6 +961,10 @@ function saveLastPlayed(){
   const t = window.playlist[window.currentIndex];
   if(!t) return;
   localStorage.setItem('lastPlayed', JSON.stringify({title:t.title, artist:t.artist, thumb:t.thumb}));
+  // On garde les 20 derniers titres écoutés (sans doublon), du plus récent au plus ancien
+  const history = getHistory().filter(h => !(h.title === t.title && h.artist === t.artist));
+  history.unshift({ title: t.title, artist: t.artist });
+  try { localStorage.setItem('history', JSON.stringify(history.slice(0, 20))); } catch {}
 }
 
 /* ===== Hero Banner Click ===== */
@@ -869,26 +990,28 @@ if (heroArt) {
 function createPlaylist(){
   const name = newPlaylistNameInput.value.trim();
   if(!name) {
-    showToast('Donne un nom à la playlist', { icon: 'fa-circle-exclamation' });
+    showToast('Donne un nom à la playlist', { icon: 'error' });
     newPlaylistNameInput.focus();
     return;
   }
   if(name === LIKED || window.userPlaylists[name]) {
-    showToast(`La playlist "${name}" existe déjà`, { icon: 'fa-circle-exclamation' });
+    showToast(`La playlist "${name}" existe déjà`, { icon: 'error' });
     return;
   }
   window.userPlaylists[name] = [];
   savePlaylists();
-  renderPlaylistTracks(name);
+  navigate('/playlist/' + encodeURIComponent(name));
   renderPlaylists();
   newPlaylistNameInput.value = '';
-  showToast(`Playlist "${name}" créée`, { icon: 'fa-list' });
+  showToast(`Playlist "${name}" créée`, { icon: 'queue_music' });
 }
 
 async function init(){
   // Affiche la page demandée tout de suite, puis complète quand les vidéos sont chargées
   renderArtists();
+  renderHome();
   renderSearchHome();
+  renderUpcomingSection(document.getElementById('exploreEvents'));
   renderPlaylists();
   route();
 
@@ -955,3 +1078,35 @@ function shareCurrentTrack(){
 
 /* kick off : après le chargement de tous les modules (player.js inclus) */
 document.addEventListener('DOMContentLoaded', init);
+
+/* ===== Menu latéral sur mobile =====
+   Sur mobile, toucher le logo ouvre la barre latérale depuis la gauche
+   (Vidéos, Wrapped 25, Verset du jour, Upload Music, playlists…). */
+(function setupMobileDrawer() {
+  const brand = document.querySelector('.appbar .brand');
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('drawerBackdrop');
+  if (!brand || !sidebar || !backdrop) return;
+  const isMobile = () => window.matchMedia('(max-width: 900px)').matches;
+
+  const open = () => {
+    backdrop.hidden = false;
+    requestAnimationFrame(() => document.body.classList.add('drawer-open'));
+    brand.setAttribute('aria-expanded', 'true');
+  };
+  const close = () => {
+    document.body.classList.remove('drawer-open');
+    brand.setAttribute('aria-expanded', 'false');
+    setTimeout(() => { if (!document.body.classList.contains('drawer-open')) backdrop.hidden = true; }, 250);
+  };
+
+  brand.addEventListener('click', (e) => {
+    if (!isMobile()) return;           // sur ordinateur, le logo ramène à l'accueil
+    e.preventDefault();
+    document.body.classList.contains('drawer-open') ? close() : open();
+  });
+  backdrop.addEventListener('click', close);
+  sidebar.addEventListener('click', (e) => { if (e.target.closest('a, button[data-soon]')) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  window.addEventListener('hashchange', close);
+})();

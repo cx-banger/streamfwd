@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-  <meta name="theme-color" content="#000000" />
+  <meta name="theme-color" content="#030303" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Muzikly - ConnexionBanger</title>
@@ -14,131 +14,176 @@
   <meta property="og:site_name" content="Muzikly" />
   <meta property="og:title" content="Muzikly - ConnexionBanger" />
   <meta property="og:description" content="Écoute les artistes de ConnexionBanger : playlists, paroles, nouvelles sorties." />
-  <meta property="og:image" content="https://raw.githubusercontent.com/CX-Banger/streamfwd/main/_data/MacOSCalendar.png" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/CX-Banger/cx-muzik/main/op/cv/artiste5/cover12.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Logo de l'onglet (favicon) -->
+  <!-- Logo de l'onglet (favicon) -->
   <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/CX-Banger/cx-muzik/0c07a92d0298865c5d0b4c06eb6c27be1c2ac8db/assets/muzikly-logo-noir.svg" />
 
-  <!-- Font & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Police Roboto + icônes Material Symbols (seulement celles utilisées, par ordre alphabétique) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@600;700;800&family=Google+Sans+Flex:wght@400;500;600;700&family=Inter+Tight:wght@800;900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&icon_names=add,add_circle,airplay,album,apps,arrow_back,auto_awesome,calendar_today,check,check_circle,chevron_left,chevron_right,close,confirmation_number,delete,error,event,event_available,event_busy,expand_less,expand_more,explore,fast_forward,fast_rewind,favorite,heart_broken,home,hourglass_top,info,keyboard_arrow_down,library_music,link,local_fire_department,location_on,lyrics,menu,menu_book,mic,more_vert,music_note,my_location,pause,person,play_arrow,playlist_add,playlist_add_check,public,queue_music,repeat,repeat_one,schedule,search,share,shuffle,skip_next,skip_previous,upload,videocam,view_list,volume_off,volume_up,warning&display=block" rel="stylesheet">
+  <!-- Font Awesome : uniquement pour les logos des plateformes (Spotify, Deezer…) et les pages Sorties / Vidéos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <!-- CSS -->
   <link rel="stylesheet" href="src/style.css" />
   <link rel="stylesheet" href="src/upcoming.css" />
+  <!-- Thème inspiré de YouTube Music : chargé en dernier, il prend le dessus -->
+  <link rel="stylesheet" href="src/theme.css" />
+  <link rel="stylesheet" href="src/events.css" />
+  <link rel="stylesheet" href="src/playlist.css" />
 </head>
 <body>
+  <!-- Barre du haut (sur toute la largeur, comme YouTube Music) -->
+  <header class="appbar">
+    <div class="appbar-start">
+      <button class="icon-btn" id="sidebarToggle" type="button" aria-label="Réduire ou agrandir le menu"><span class="ms">menu</span></button>
+      <a class="brand" href="#/home" aria-label="Muzikly, accueil">
+        <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="12" fill="currentColor"/>
+          <g transform="translate(12 12) scale(0.78) translate(-12 -12)">
+            <path fill="#fff" d="M10.421 11.375c-.294 1.028.012 2.064.784 2.653 1.061.81 2.565.3 2.874-.995.08-.337.103-.722.027-1.056-.23-1.001-.52-1.988-.792-2.996-1.33.154-2.543 1.172-2.893 2.394zm5.548-.287c.273 1.012.285 2.017-.127 3-1.128 2.69-4.721 3.14-6.573.826-1.302-1.627-1.28-3.961.06-5.734.78-1.032 1.804-1.707 3.048-2.054l.379-.104c-.084-.415-.188-.816-.243-1.224-.176-1.317.512-2.503 1.744-3.04 1.226-.535 2.708-.216 3.53.76.406.479.395 1.08-.025 1.464-.412.377-.996.346-1.435-.09-.247-.246-.51-.44-.877-.436-.525.006-.987.418-.945.937.037.468.173.93.3 1.386.022.078.216.135.338.153 1.334.197 2.504.731 3.472 1.676 2.558 2.493 2.861 6.531.672 9.44-1.529 2.032-3.61 3.168-6.127 3.409-4.621.44-8.664-2.53-9.7-7.058C2.515 10.255 4.84 5.831 8.795 4.25c.586-.234 1.143-.031 1.371.498.232.537-.019 1.086-.61 1.35-2.368 1.06-3.817 2.855-4.215 5.424-.533 3.433 1.656 6.776 5 7.72 2.723.77 5.658-.166 7.308-2.33 1.586-2.08 1.4-5.099-.427-6.873a3.979 3.979 0 0 0-1.823-1.013c.198.716.389 1.388.57 2.062z"/>
+          </g>
+        </svg>
+        <span class="brand-name">Muzikly</span>
+      </a>
+    </div>
+    <div class="search-inline">
+      <span class="ms">search</span>
+      <input id="headerSearch" type="search" autocomplete="off" placeholder="Rechercher des titres, des artistes..." aria-label="Rechercher" />
+    </div>
+    <div class="appbar-end">
+      <a class="icon-btn" href="https://www.bible.com/fr/verse-of-the-day/" target="_blank" rel="noopener" title="Verset du jour" aria-label="Verset du jour"><span class="ms">menu_book</span></a>
+      <span class="avatar-btn" aria-hidden="true">CB</span>
+    </div>
+  </header>
+
   <div class="app">
-    <!-- Sidebar (desktop) -->
-    <aside class="sidebar">
-      <div class="logo">
-        <div class="logo-mark"><svg width="300" height="300" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Arrière-plan vert avec coins arrondis -->
-  <rect x="10" y="10" width="180" height="180" rx="40" ry="40" fill="#4CAF50"/>
-  
-  <!-- Ombre subtile -->
-  <rect x="12" y="12" width="180" height="180" rx="40" ry="40" fill="rgba(0,0,0,0.1)"/>
-  <rect x="10" y="10" width="180" height="180" rx="40" ry="40" fill="#4CAF50"/>
-  
-  <!-- Icône spirale centrée et redimensionnée -->
-  <g transform="translate(100, 100) scale(7)">
-    <g transform="translate(-12, -12)">
-      <path fill="none" d="M0 0h24v24H0z"/>
-      <path fill="white" d="M10.421 11.375c-.294 1.028.012 2.064.784 2.653 1.061.81 2.565.3 2.874-.995.08-.337.103-.722.027-1.056-.23-1.001-.52-1.988-.792-2.996-1.33.154-2.543 1.172-2.893 2.394zm5.548-.287c.273 1.012.285 2.017-.127 3-1.128 2.69-4.721 3.14-6.573.826-1.302-1.627-1.28-3.961.06-5.734.78-1.032 1.804-1.707 3.048-2.054l.379-.104c-.084-.415-.188-.816-.243-1.224-.176-1.317.512-2.503 1.744-3.04 1.226-.535 2.708-.216 3.53.76.406.479.395 1.08-.025 1.464-.412.377-.996.346-1.435-.09-.247-.246-.51-.44-.877-.436-.525.006-.987.418-.945.937.037.468.173.93.3 1.386.022.078.216.135.338.153 1.334.197 2.504.731 3.472 1.676 2.558 2.493 2.861 6.531.672 9.44-1.529 2.032-3.61 3.168-6.127 3.409-4.621.44-8.664-2.53-9.7-7.058C2.515 10.255 4.84 5.831 8.795 4.25c.586-.234 1.143-.031 1.371.498.232.537-.019 1.086-.61 1.35-2.368 1.06-3.817 2.855-4.215 5.424-.533 3.433 1.656 6.776 5 7.72 2.723.77 5.658-.166 7.308-2.33 1.586-2.08 1.4-5.099-.427-6.873a3.979 3.979 0 0 0-1.823-1.013c.198.716.389 1.388.57 2.062z"/>
-    </g>
-  </g>
-  
-  <!-- Reflet subtil pour l'effet glossy -->
-  <defs>
-    <linearGradient id="glossy" x1="0%" y1="0%" x2="0%" y2="50%">
-      <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect x="10" y="10" width="180" height="90" rx="40" ry="40" fill="url(#glossy)"/>
-</svg></div>
-        <div class="logo-text">
-          <strong>Muzikly</strong>
-          <small>ConnexionBanger</small>
-        </div>
-      </div>
+    <!-- Barre latérale (ordinateur) : dépliée avec libellés, ou repliée en rail d'icônes -->
+    <!-- Fond sombre derrière le menu latéral (mobile) -->
+    <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+    <aside class="sidebar" id="sidebar" aria-label="Menu">
       <nav class="nav-main">
-        <a class="nav-btn" href="#/home" data-page="home"><i class="fas fa-compass"></i> Découvrir</a>
-        <a class="nav-btn" href="#/search" data-page="search"><i class="fas fa-search"></i> Recherche</a>
-        <a class="nav-btn" href="#/playlists" data-page="playlists"><i class="fas fa-headphones"></i> Playlists</a>
-        <a class="nav-btn" href="#/liked" data-page="liked"><i class="fas fa-heart"></i> Sons likés</a>
-        <a class="nav-btn" href="#/upcoming" data-page="upcoming"><i class="fas fa-bolt"></i> Sorties 🔥</a>
+        <a class="nav-btn" href="#/home" data-page="home"><span class="ms">home</span><span class="nav-label">Accueil</span></a>
+        <a class="nav-btn" href="#/search" data-page="search"><span class="ms">explore</span><span class="nav-label">Explorer</span></a>
+        <a class="nav-btn" href="#/playlists" data-page="playlists"><span class="ms">library_music</span><span class="nav-label">Bibliothèque</span></a>
+        <a class="nav-btn" href="#/upcoming" data-page="upcoming"><span class="ms">event</span><span class="nav-label">Événements</span></a>
       </nav>
-      <nav class="nav-main nav-secondary">
-        <a class="nav-btn" href="video-config.html"><i class="fas fa-video"></i> Vidéos</a>
-        <button class="nav-btn" type="button" data-soon="Wrapped 25"><i class="fa-solid fa-icons"></i> Wrapped 25 <span class="nav-badge">Bientôt</span></button>
-        <a class="nav-btn" href="https://www.bible.com/fr/verse-of-the-day/" target="_blank" rel="noopener"><i class="fa-solid fa-book-bible"></i> Verset du jour</a>
-        <a class="nav-btn" href="https://cx-banger.github.io/authd.sdk/" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Upload Music</a>
-      </nav>
+
+      <div class="sidebar-expanded-only">
+        <hr class="sidebar-sep">
+        <a class="new-playlist-btn" href="#/playlists"><span class="ms">add</span> Nouvelle playlist</a>
+        <div class="sidebar-playlists" id="sidebarPlaylists"></div>
+        <hr class="sidebar-sep">
+        <nav class="nav-main nav-secondary">
+          <a class="nav-btn" href="video-config.html"><span class="ms">videocam</span><span class="nav-label">Vidéos</span></a>
+          <button class="nav-btn" type="button" data-soon="Wrapped 25"><span class="ms">auto_awesome</span><span class="nav-label">Wrapped 25</span><span class="nav-badge">Bientôt</span></button>
+          <a class="nav-btn" href="https://www.bible.com/fr/verse-of-the-day/" target="_blank" rel="noopener"><span class="ms">menu_book</span><span class="nav-label">Verset du jour</span></a>
+          <a class="nav-btn" href="https://cx-banger.github.io/authd.sdk/" target="_blank" rel="noopener"><span class="ms">upload</span><span class="nav-label">Upload Music</span></a>
+        </nav>
+      </div>
     </aside>
 
     <!-- Main content -->
     <main class="main">
-      <header class="topbar">
-        <div class="search-inline">
-          <i class="fas fa-search"></i>
-          <input id="headerSearch" type="search" autocomplete="off" placeholder="Rechercher un son, artiste..." aria-label="Rechercher" />
-        </div>
-        <div class="top-actions">
-          <!-- Icone redirige vers le verset du jour sur YouVersion -->
-          <a href="https://www.bible.com/fr/verse-of-the-day/" target="_blank" rel="noopener" title="Verset du jour" aria-label="Verset du jour"><i class="fa-solid fa-book-bible"></i></a>
-        </div>
-      </header>
-
       <section class="pages">
         <!-- Home -->
         <section id="page-home" class="page active">
-          <div class="hero">
-            <div class="hero-art" id="heroArt" role="button" tabindex="0" aria-label="Écouter le titre à la une">
-              <img src="https://raw.githubusercontent.com/CX-Banger/streamfwd/main/_data/MacOSCalendar.png" alt="Pochette du titre à la une">
-            </div>
-            
-            <div class="hero-meta">
-              <strong>À la une</strong>
-              <h2 id="featuredTitle">Kill My Flesh</h2>
-              <div class="chips">
-                <span class="chip">Eilynn</span>
-                <span class="chip">Elihem</span>
+          <nav class="chips" id="homeChips" aria-label="Filtrer par artiste"></nav>
+
+          <section class="shelf">
+            <header class="shelf-head">
+              <div class="shelf-titles">
+                <img class="shelf-avatar" src="https://raw.githubusercontent.com/CX-Banger/cx-muzik/main/op/cv/artiste5/cover12.jpg" alt="">
+                <div>
+                  <span class="shelf-caption">Muzikly</span>
+                  <h2 class="shelf-title">Écouter à nouveau</h2>
+                </div>
               </div>
-            </div>
-            <div class="hero-platforms">
-              <div class="hero-platforms-label">Disponible sur</div>
-              <div class="hero-platforms-icons">
-                <a href="https://cx-banger.github.io/cx-muzik/" target="_blank" rel="noopener" title="Cx banger" class="platform-icon">
-                  <img src="https://raw.githubusercontent.com/CX-Banger/unordered_set/22d74974b03a71e9555daa54d6a9bf59da64b00a/cx-cloud-music-white-fill.svg" alt="CX Banger" width="24" height="24">
-                </a>
-                <a href="https://open.spotify.com" target="_blank" rel="noopener" title="Spotify" class="platform-icon">
-                  <i class="fab fa-spotify"></i>
-                </a>
-                <a href="https://music.apple.com" target="_blank" rel="noopener" title="Apple Music" class="platform-icon">
-                  <i class="fab fa-apple"></i>
-                </a>
-                <a href="https://www.deezer.com" target="_blank" rel="noopener" title="Deezer" class="platform-icon">
-                  <i class="fab fa-deezer"></i>
-                </a>
-                <a href="https://music.youtube.com" target="_blank" rel="noopener" title="YouTube Music" class="platform-icon">
-                  <i class="fab fa-youtube"></i>
-                </a>
+              <div class="shelf-nav">
+                <button class="round-btn" type="button" data-scroll="homeListenAgain" data-dir="-1" aria-label="Précédent"><span class="ms">chevron_left</span></button>
+                <button class="round-btn" type="button" data-scroll="homeListenAgain" data-dir="1" aria-label="Suivant"><span class="ms">chevron_right</span></button>
               </div>
+            </header>
+            <div class="carousel" id="homeListenAgain"></div>
+          </section>
+
+          <section class="shelf">
+            <header class="shelf-head">
+              <div class="shelf-titles">
+                <span class="shelf-icon" aria-hidden="true"><span class="ms ms-fill">music_note</span></span>
+                <div>
+                  <span class="shelf-caption">Lance un son</span>
+                  <h2 class="shelf-title">Sélection rapide</h2>
+                </div>
+              </div>
+              <div class="shelf-nav">
+                <button class="pill-btn" type="button" id="quickPlayAll">Tout lire</button>
+                <button class="round-btn" type="button" data-scroll="homeQuickPicks" data-dir="-1" aria-label="Précédent"><span class="ms">chevron_left</span></button>
+                <button class="round-btn" type="button" data-scroll="homeQuickPicks" data-dir="1" aria-label="Suivant"><span class="ms">chevron_right</span></button>
+              </div>
+            </header>
+            <div class="quick-grid" id="homeQuickPicks"></div>
+          </section>
+
+          <section class="shelf">
+            <header class="shelf-head">
+              <div class="shelf-titles">
+                <span class="shelf-icon" aria-hidden="true"><span class="ms ms-fill">local_fire_department</span></span>
+                <div>
+                  <span class="shelf-caption">Fraîchement sortis</span>
+                  <h2 class="shelf-title">Derniers sons</h2>
+                </div>
+              </div>
+              <div class="shelf-nav">
+                <button class="round-btn" type="button" data-scroll="homeLatest" data-dir="-1" aria-label="Précédent"><span class="ms">chevron_left</span></button>
+                <button class="round-btn" type="button" data-scroll="homeLatest" data-dir="1" aria-label="Suivant"><span class="ms">chevron_right</span></button>
+              </div>
+            </header>
+            <div class="carousel" id="homeLatest"></div>
+          </section>
+
+          <section class="shelf">
+            <header class="shelf-head">
+              <div class="shelf-titles">
+                <span class="shelf-icon" aria-hidden="true"><span class="ms ms-fill">mic</span></span>
+                <div>
+                  <span class="shelf-caption">ConnexionBanger</span>
+                  <h2 class="shelf-title">Artistes</h2>
+                </div>
+              </div>
+              <div class="shelf-nav">
+                <button class="round-btn" type="button" data-scroll="artistsGrid" data-dir="-1" aria-label="Précédent"><span class="ms">chevron_left</span></button>
+                <button class="round-btn" type="button" data-scroll="artistsGrid" data-dir="1" aria-label="Suivant"><span class="ms">chevron_right</span></button>
+              </div>
+            </header>
+            <div class="carousel" id="artistsGrid"></div>
+          </section>
+
+          <footer class="platforms">
+            <span class="platforms-label">Aussi disponible sur</span>
+            <div class="platforms-icons">
+              <a href="https://cx-banger.github.io/cx-muzik/" target="_blank" rel="noopener" title="CX Banger" class="platform-icon">
+                <img src="https://raw.githubusercontent.com/CX-Banger/unordered_set/22d74974b03a71e9555daa54d6a9bf59da64b00a/cx-cloud-music-white-fill.svg" alt="CX Banger" width="18" height="18">
+              </a>
+              <a href="https://open.spotify.com" target="_blank" rel="noopener" title="Spotify" class="platform-icon"><i class="fab fa-spotify"></i></a>
+              <a href="https://music.apple.com" target="_blank" rel="noopener" title="Apple Music" class="platform-icon"><i class="fab fa-apple"></i></a>
+              <a href="https://www.deezer.com" target="_blank" rel="noopener" title="Deezer" class="platform-icon"><i class="fab fa-deezer"></i></a>
+              <a href="https://music.youtube.com" target="_blank" rel="noopener" title="YouTube Music" class="platform-icon"><i class="fab fa-youtube"></i></a>
             </div>
-          </div>
-          <h3 class="section-title">Artistes</h3>
-          <div id="artistsGrid" class="grid artists-grid"></div>
+          </footer>
         </section>
 
         <!-- Playlists -->
         <section id="page-playlists" class="page">
           <div class="page-head">
-            <h2>🎧 Tes playlists</h2>
-            <div>
-              <input id="newPlaylistName" placeholder="Nouvelle playlist..." />
-              <button id="createPlaylistBtn">Créer</button>
+            <h1 class="page-title">Bibliothèque</h1>
+            <div class="create-playlist">
+              <input id="newPlaylistName" placeholder="Nom de la playlist..." aria-label="Nom de la nouvelle playlist" />
+              <button id="createPlaylistBtn" class="pill-btn pill-btn-light" type="button"><span class="ms">add</span> Créer</button>
             </div>
           </div>
           <div id="playlistList" class="playlists-list"></div>
@@ -146,86 +191,73 @@
         </section>
 
         <!-- Liked -->
-        <section id="page-liked" class="page">
-          <h2 style="margin-bottom: 20px;">♡ Sons likés</h2>
-          <div class="tracks-table-header">
-            <div class="track-col-number">#</div>
-            <div class="track-col-title">Titre</div>
-            <div class="track-col-album">Artiste</div>
-            <div class="track-col-duration"><i class="far fa-clock"></i></div>
-          </div>
-          <div id="likedTracks" class="tracks-table-body"></div>
-        </section>
+        <section id="page-liked" class="page"></section>
+
+        <!-- Écran d'une playlist (rempli par src/playlistView.js) -->
+        <section id="page-playlist" class="page"></section>
 
         <!-- Search -->
         <section id="page-search" class="page">
-          <h2>🔍 Recherche</h2>
-          <input id="searchInput" type="search" autocomplete="off" placeholder="Rechercher un son ou un artiste..." aria-label="Rechercher" />
+          <h1 class="page-title">Explorer</h1>
+          <div class="search-field">
+            <span class="ms">search</span>
+            <input id="searchInput" type="search" autocomplete="off" placeholder="Rechercher des titres, des artistes..." aria-label="Rechercher" />
+          </div>
 
           <!-- Default search view (before search) -->
           <div id="searchDefaultView">
-            <!-- Recently added section -->
             <div class="search-section">
-              <div class="section-header">
-                <h3>Récemment ajouté</h3>
-              </div>
+              <div class="section-header"><h3>Récemment ajouté</h3></div>
               <div id="listenAgainGrid" class="search-horizontal-grid"></div>
             </div>
-
-            <!-- Artists section -->
             <div class="search-section">
-              <div class="section-header">
-                <h3>Artistes</h3>
-              </div>
+              <div class="section-header"><h3>Artistes</h3></div>
               <div id="artistsCircleGrid" class="search-horizontal-grid"></div>
             </div>
-
-            <!-- Mixed for you section -->
             <div class="search-section">
-              <div class="section-header">
-                <h3>Sélection pour vous</h3>
-              </div>
+              <div class="section-header"><h3>Sélection pour toi</h3></div>
               <div id="mixedForYouGrid" class="search-horizontal-grid"></div>
             </div>
           </div>
 
           <!-- Search results (when searching) -->
           <div id="searchResults" class="grid search-results hidden"></div>
+
+          <!-- Dates des prochains événements (style Bandsintown), rempli par src/events.js -->
+          <div id="exploreEvents"></div>
         </section>
 
         <!-- Upcoming -->
-        <section id="page-upcoming" class="page">
-          <h2>🔥 Sorties & À la une</h2>
-          <div id="upcoming" class="grid"></div>
-        </section>
+        <!-- Événements (scènes ouvertes, sorties, concerts) : rempli par src/events.js -->
+        <section id="page-upcoming" class="page"></section>
 
         <!-- Artist Page -->
         <section id="page-artist" class="page">
           <div class="artist-page-header">
             <div class="artist-page-banner">
+              <img id="artistPageAvatar" class="artist-page-avatar" src="" alt="">
               <div class="artist-page-info">
                 <span class="artist-page-label">Artiste</span>
                 <h1 id="artistPageName" class="artist-page-title"></h1>
                 <div id="artistPageBio" class="artist-page-bio"></div>
+                <a id="artistEventBadge" class="artist-event-badge" href="#/upcoming" hidden></a>
+                <div class="artist-page-actions">
+                  <button id="artistPlayBtn" class="pill-btn pill-btn-light" aria-label="Lire tous les titres">
+                    <span class="ms ms-fill">play_arrow</span> Lire
+                  </button>
+                  <button id="artistShuffleBtn" class="pill-btn" aria-label="Lecture aléatoire">
+                    <span class="ms">shuffle</span> Aléatoire
+                  </button>
+                  <button id="artistShareBtn" class="round-btn round-btn-lg" aria-label="Partager l'artiste" title="Partager">
+                    <span class="ms">share</span>
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="artist-page-actions">
-              <button id="artistPlayBtn" class="artist-play-btn" aria-label="Lire tous les titres">
-                <i class="fas fa-play"></i>
-              </button>
-              <button id="artistShareBtn" class="artist-action-btn" aria-label="Partager l'artiste" title="Partager">
-                <i class="fas fa-share-nodes"></i>
-              </button>
             </div>
           </div>
           <div class="artist-page-content">
+            <h2 class="shelf-title artist-songs-title">Titres</h2>
             <div class="artist-tracks-section">
-              <div class="tracks-table-header">
-                <div class="track-col-number">#</div>
-                <div class="track-col-title">Titre</div>
-                <div class="track-col-album">Album</div>
-                <div class="track-col-duration"><i class="far fa-clock"></i></div>
-              </div>
               <div id="artistTracksList" class="tracks-table-body"></div>
             </div>
           </div>
@@ -233,9 +265,8 @@
 
         <!-- Videos Management Page -->
         <section id="page-videos" class="page">
-          <h2 style="margin-bottom: 20px;">🎬 Gestion des Vidéos</h2>
-          <p style="margin-bottom: 30px; color: #999;">Associez une vidéo à chaque son. Les vidéos doivent être uploadées dans Supabase Storage dans le bucket 'videos'.</p>
-
+          <h1 class="page-title">Gestion des vidéos</h1>
+          <p class="page-intro">Associe une vidéo à chaque son. Les vidéos doivent être téléversées dans Supabase Storage, dans le bucket « videos ».</p>
           <div id="videosManagement" class="videos-management">
             <div id="artistsVideosAccordion" class="artists-videos-accordion"></div>
           </div>
@@ -245,24 +276,43 @@
 
     <!-- Bottom nav (mobile) -->
     <nav class="bottom-nav mobile-only" id="bottomNav">
-      <button class="bt" data-page="home"><i class="fas fa-home"></i><small>Accueil</small></button>
-      <button class="bt" data-page="playlists"><i class="fas fa-list"></i><small>Playlists</small></button>
-      <button class="bt" data-page="search"><i class="fas fa-search"></i><small>Recherche</small></button>
-      <button class="bt" data-page="upcoming"><i class="fas fa-bolt"></i><small>Sorties</small></button>
+      <button class="bt" data-page="home"><span class="ms">home</span><small>Accueil</small></button>
+      <button class="bt" data-page="search"><span class="ms">explore</span><small>Explorer</small></button>
+      <button class="bt" data-page="playlists"><span class="ms">library_music</span><small>Bibliothèque</small></button>
+      <button class="bt" data-page="upcoming"><span class="ms">event</span><small>Événements</small></button>
     </nav>
 
-    <!-- Mini Player (collapsed state) -->
+    <!-- Barre de lecture (en bas, sur toute la largeur) -->
     <div class="mini-player" id="miniPlayer">
+      <div class="mini-progress">
+        <input id="miniProgress" type="range" min="0" max="100" step="0.1" value="0" aria-label="Position dans le titre" />
+      </div>
       <div class="mini-player-content" id="miniPlayerContent">
-        <button id="miniPlayPause" class="mini-play-btn" aria-label="Lecture / pause"><i class="fas fa-pause"></i></button>
-        <img id="miniPlayerThumb" class="mini-player-thumb" src="" alt="cover" />
-        <div class="mini-player-info">
-          <div id="miniPlayerTitle" class="mini-player-title">—</div>
-          <div id="miniPlayerArtist" class="mini-player-artist">—</div>
+        <div class="mini-left">
+          <button id="miniPrevBtn" class="icon-btn desktop-only" aria-label="Titre précédent"><span class="ms ms-fill">skip_previous</span></button>
+          <button id="miniPlayPause" class="mini-play-btn" aria-label="Lecture / pause"><span class="ms ms-fill">play_arrow</span></button>
+          <button id="miniNextBtn" class="icon-btn mini-next-btn" aria-label="Titre suivant"><span class="ms ms-fill">skip_next</span></button>
+          <span class="mini-time desktop-only" id="miniTime">0:00 / 0:00</span>
         </div>
-        <div class="mini-player-actions">
-          <button id="miniLikeBtn" class="mini-like-btn" aria-label="J'aime"><i class="far fa-heart"></i></button>
-          <button id="miniNextBtn" class="mini-next-btn" aria-label="Titre suivant"><i class="fas fa-step-forward"></i></button>
+        <div class="mini-center">
+          <img id="miniPlayerThumb" class="mini-player-thumb" src="" alt="" />
+          <div class="mini-player-info">
+            <div id="miniPlayerTitle" class="mini-player-title">—</div>
+            <div class="mini-player-sub"><span id="miniPlayerArtist" class="mini-player-artist">—</span><span id="miniDuration" class="mini-duration"></span></div>
+          </div>
+          <div class="mini-actions">
+            <button id="miniLikeBtn" class="icon-btn mini-like-btn" aria-label="J'aime"><span class="ms">favorite</span></button>
+            <button id="miniMoreBtn" class="icon-btn mini-more-btn desktop-only" aria-label="Plus d'options"><span class="ms">more_vert</span></button>
+          </div>
+        </div>
+        <div class="mini-right desktop-only">
+          <button id="miniRepeatBtn" class="icon-btn" aria-label="Répéter"><span class="ms">repeat</span></button>
+          <button id="miniShuffleBtn" class="icon-btn" aria-label="Aléatoire"><span class="ms">shuffle</span></button>
+          <div class="volume">
+            <button id="miniMuteBtn" class="icon-btn" aria-label="Couper le son"><span class="ms">volume_up</span></button>
+            <input id="miniVolume" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume" />
+          </div>
+          <button id="miniExpandBtn" class="icon-btn" aria-label="Ouvrir le lecteur"><span class="ms">expand_less</span></button>
         </div>
       </div>
     </div>
@@ -271,17 +321,17 @@
     <div class="full-player" id="fullPlayer">
       <div class="full-player-scrollable" id="fullPlayerScrollable">
         <div class="full-player-header">
-          <button id="closeFullPlayer" class="close-player-btn" aria-label="Réduire le lecteur">
-            <i class="fas fa-chevron-down"></i>
+          <button id="closeFullPlayer" class="icon-btn close-player-btn" aria-label="Réduire le lecteur">
+            <span class="ms">keyboard_arrow_down</span>
           </button>
           <span class="player-header-title" id="headerTitleSticky">En lecture</span>
-          <button id="playerMenuBtn" class="player-menu-btn" aria-label="Options">
-            <i class="fas fa-ellipsis-h"></i>
+          <button id="playerMenuBtn" class="icon-btn player-menu-btn" aria-label="Options">
+            <span class="ms">more_vert</span>
           </button>
         </div>
 
         <div class="full-player-cover-wrapper" id="fullPlayerCoverWrapper">
-          <img id="fullPlayerCover" class="full-player-cover" src="" alt="cover" />
+          <img id="fullPlayerCover" class="full-player-cover" src="" alt="Pochette" />
           <video id="fullPlayerCanvas" class="full-player-canvas" muted loop playsinline preload="none"></video>
 
           <div class="full-player-info-overlay" id="fullPlayerInfoFixed">
@@ -292,7 +342,7 @@
 
             <div class="full-player-controls">
               <div class="progress-section">
-                <input id="fullProgress" type="range" min="0" max="100" value="0" class="full-progress-bar" />
+                <input id="fullProgress" type="range" min="0" max="100" value="0" class="full-progress-bar" aria-label="Position dans le titre" />
                 <div class="progress-time">
                   <span id="fullCurrentTime">0:00</span>
                   <span id="fullDurationTime">0:00</span>
@@ -301,28 +351,32 @@
 
               <div class="main-controls">
                 <button id="fullShuffleBtn" class="control-btn shuffle-btn" aria-label="Aléatoire">
-                  <i class="fas fa-random"></i>
+                  <span class="ms">shuffle</span>
                 </button>
                 <button id="fullPrevBtn" class="control-btn" aria-label="Titre précédent">
-                  <i class="fas fa-step-backward"></i>
+                  <span class="ms ms-fill">skip_previous</span>
                 </button>
                 <button id="fullPlayPauseBtn" class="control-btn play-pause-main" aria-label="Lecture / pause">
-                  <i class="fas fa-play"></i>
+                  <span class="ms ms-fill">play_arrow</span>
                 </button>
                 <button id="fullNextBtn" class="control-btn" aria-label="Titre suivant">
-                  <i class="fas fa-step-forward"></i>
+                  <span class="ms ms-fill">skip_next</span>
                 </button>
                 <button id="fullRepeatBtn" class="control-btn repeat-btn" aria-label="Répéter">
-                  <i class="fas fa-redo"></i>
+                  <span class="ms">repeat</span>
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="lyrics-preview" id="lyricsPreview">
-          <span class="lyrics-preview-text">Paroles</span>
-          <i class="fas fa-chevron-up"></i>
+        <div class="lyrics-preview" id="lyricsPreview" role="button" tabindex="0" aria-label="Afficher les paroles">
+          <span class="lyrics-handle" aria-hidden="true"></span>
+          <span class="lyrics-preview-row">
+            <span class="lyrics-preview-text"><span class="ms">lyrics</span> Paroles</span>
+            <span class="ms lyrics-chevron">expand_less</span>
+          </span>
+          <span class="lyrics-excerpt" id="lyricsExcerpt">Pas encore de paroles pour ce titre</span>
         </div>
 
         <div class="lyrics-section" id="lyricsSection">
@@ -337,22 +391,22 @@
     <!-- Player Menu Panel -->
     <div class="player-menu-panel" id="playerMenuPanel">
       <div class="menu-panel-content">
-        <button class="menu-panel-close" id="menuPanelClose">
-          <i class="fas fa-times"></i>
+        <button class="menu-panel-close icon-btn" id="menuPanelClose" aria-label="Fermer">
+          <span class="ms">close</span>
         </button>
         <h3 class="menu-panel-title">Options</h3>
         <div class="menu-panel-actions">
           <button id="menuLikeBtn" class="menu-action-btn">
-            <i class="far fa-heart"></i>
-            <span>Ajouter aux favoris</span>
+            <span class="ms">favorite</span>
+            <span class="menu-label">Ajouter aux favoris</span>
           </button>
           <button id="menuAddToPlaylistBtn" class="menu-action-btn">
-            <i class="fas fa-plus"></i>
-            <span>Ajouter à une playlist</span>
+            <span class="ms">playlist_add</span>
+            <span class="menu-label">Ajouter à une playlist</span>
           </button>
           <button id="menuShareBtn" class="menu-action-btn">
-            <i class="fas fa-share-nodes"></i>
-            <span>Partager le titre</span>
+            <span class="ms">share</span>
+            <span class="menu-label">Partager le titre</span>
           </button>
         </div>
       </div>

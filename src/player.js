@@ -1,4 +1,4 @@
-import { showToast } from './ui.js';
+import { showToast, coverColor } from './ui.js';
 
 const miniPlayer = document.getElementById('miniPlayer');
 const fullPlayer = document.getElementById('fullPlayer');
@@ -11,6 +11,14 @@ const miniPlayerArtist = document.getElementById('miniPlayerArtist');
 const miniPlayPauseBtn = document.getElementById('miniPlayPause');
 const miniLikeBtn = document.getElementById('miniLikeBtn');
 const miniNextBtn = document.getElementById('miniNextBtn');
+const miniPrevBtn = document.getElementById('miniPrevBtn');
+const miniTime = document.getElementById('miniTime');
+const miniProgress = document.getElementById('miniProgress');
+const miniRepeatBtn = document.getElementById('miniRepeatBtn');
+const miniShuffleBtn = document.getElementById('miniShuffleBtn');
+const miniMuteBtn = document.getElementById('miniMuteBtn');
+const miniVolume = document.getElementById('miniVolume');
+const miniExpandBtn = document.getElementById('miniExpandBtn');
 
 const fullPlayerCover = document.getElementById('fullPlayerCover');
 const fullPlayerCanvas = document.getElementById('fullPlayerCanvas');
@@ -85,6 +93,13 @@ function updateMiniPlayer(title, artist, thumb) {
   miniPlayerThumb.src = thumb || 'https://github.com/CX-Banger/unordered_set/blob/main/assets/disque.jpg?raw=true';
   showMiniPlayer();
   updateLikeUI();
+
+  // Couleur du mini-lecteur mobile tirée de la pochette (si le titre n'a pas changé entre-temps)
+  coverColor(thumb).then(color => {
+    if (miniPlayerTitle.textContent !== title) return;
+    if (color) miniPlayer.style.setProperty('--cover-color', color);
+    else miniPlayer.style.removeProperty('--cover-color');
+  });
 
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -185,34 +200,19 @@ function hideCanvas() {
 }
 
 function updatePlayPauseButtons() {
-  const icon = isPlaying ? 'fa-pause' : 'fa-play';
-
-  if (!isPlaying) {
-    miniPlayPauseBtn.classList.add('playing');
-    miniPlayPauseBtn.innerHTML = `<i class="fas ${icon}"></i>`;
-  } else {
-    miniPlayPauseBtn.classList.remove('playing');
-    miniPlayPauseBtn.innerHTML = '';
-  }
-
-  const fullIcon = fullPlayPauseBtn.querySelector('i');
-  if (fullIcon) {
-    fullIcon.className = `fas ${icon}`;
-  }
+  const icon = isPlaying ? 'pause' : 'play_arrow';
+  miniPlayPauseBtn.classList.toggle('playing', isPlaying);
+  miniPlayPauseBtn.querySelector('.ms').textContent = icon;
+  fullPlayPauseBtn.querySelector('.ms').textContent = icon;
 }
 
 function updateShuffleRepeatButtons() {
-  if (window.isShuffle) {
-    fullShuffleBtn.classList.add('active');
-  } else {
-    fullShuffleBtn.classList.remove('active');
-  }
-
-  if (window.isRepeat) {
-    fullRepeatBtn.classList.add('active');
-  } else {
-    fullRepeatBtn.classList.remove('active');
-  }
+  [fullShuffleBtn, miniShuffleBtn].forEach(b => b?.classList.toggle('active', !!window.isShuffle));
+  [fullRepeatBtn, miniRepeatBtn].forEach(b => {
+    if (!b) return;
+    b.classList.toggle('active', !!window.isRepeat);
+    b.querySelector('.ms').textContent = window.isRepeat ? 'repeat_one' : 'repeat';
+  });
 }
 
 function handlePlayPause() {
@@ -232,17 +232,63 @@ function handlePlayPause() {
   updatePlayPauseButtons();
 }
 
+// Un clic sur la barre (hors boutons et curseurs) ouvre le lecteur plein écran
 miniPlayerContent.addEventListener('click', (e) => {
-  if (
-    e.target !== miniPlayPauseBtn &&
-    !miniPlayPauseBtn.contains(e.target) &&
-    e.target !== miniLikeBtn &&
-    !miniLikeBtn.contains(e.target) &&
-    e.target !== miniNextBtn &&
-    !miniNextBtn.contains(e.target)
-  ) {
-    openFullPlayer();
+  if (e.target.closest('button, input')) return;
+  openFullPlayer();
+});
+
+miniPrevBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (window.handlePrev) window.handlePrev();
+});
+miniExpandBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  openFullPlayer();
+});
+miniShuffleBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  window.isShuffle = !window.isShuffle;
+  updateShuffleRepeatButtons();
+});
+miniRepeatBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  window.isRepeat = !window.isRepeat;
+  updateShuffleRepeatButtons();
+});
+
+/* Volume (barre du bas, ordinateur) : mémorisé d'une visite à l'autre */
+function updateVolumeUI() {
+  const v = window.audio.muted ? 0 : window.audio.volume;
+  if (miniVolume) {
+    miniVolume.value = v;
+    miniVolume.style.setProperty('--pct', `${v * 100}%`);
   }
+  if (miniMuteBtn) miniMuteBtn.querySelector('.ms').textContent = v === 0 ? 'volume_off' : 'volume_up';
+}
+try {
+  const saved = parseFloat(localStorage.getItem('volume'));
+  if (!isNaN(saved)) window.audio.volume = saved;
+} catch {}
+miniVolume?.addEventListener('input', () => {
+  window.audio.volume = parseFloat(miniVolume.value);
+  window.audio.muted = window.audio.volume === 0;
+  try { localStorage.setItem('volume', window.audio.volume); } catch {}
+  updateVolumeUI();
+});
+miniMuteBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  window.audio.muted = !window.audio.muted;
+  if (!window.audio.muted && window.audio.volume === 0) window.audio.volume = 0.5;
+  updateVolumeUI();
+});
+updateVolumeUI();
+
+/* Barre de progression fine en haut de la barre de lecture (cliquable pour avancer) */
+miniProgress?.addEventListener('input', () => {
+  if (!window.audio.duration) return;
+  window.audio.currentTime = (miniProgress.value / 100) * window.audio.duration;
+  miniProgress.parentElement.style.setProperty('--pct', `${miniProgress.value}%`);
 });
 
 miniPlayPauseBtn.addEventListener('click', (e) => {
@@ -340,6 +386,27 @@ playerMenuBtn.addEventListener('click', () => {
   playerMenuPanel.classList.add('active');
 });
 
+/* Bouton ⋮ de la barre du bas : ouvre le même menu sans quitter la page */
+document.getElementById('miniMoreBtn')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  playerMenuPanel.classList.toggle('active');
+});
+document.addEventListener('click', (e) => {
+  if (!playerMenuPanel.classList.contains('active')) return;
+  if (e.target.closest('#playerMenuPanel, #miniMoreBtn, #playerMenuBtn, .playlist-selection-menu')) return;
+  playerMenuPanel.classList.remove('active');
+});
+
+/* Durée du titre affichée à côté de l'artiste (« NΛN • 2:57 ») */
+window.audio.addEventListener('loadedmetadata', () => {
+  const d = document.getElementById('miniDuration');
+  if (d) d.textContent = window.audio.duration ? formatTime(window.audio.duration) : '';
+});
+window.audio.addEventListener('emptied', () => {
+  const d = document.getElementById('miniDuration');
+  if (d) d.textContent = '';
+});
+
 menuPanelClose.addEventListener('click', () => {
   playerMenuPanel.classList.remove('active');
 });
@@ -357,11 +424,10 @@ document.getElementById('menuShareBtn')?.addEventListener('click', () => {
 /* Cœurs du mini-lecteur et du menu : reflètent si le titre en cours est liké */
 function updateLikeUI() {
   const liked = !!window.isLiked?.(window.playlist[window.currentIndex]);
-  const iconClass = `${liked ? 'fas' : 'far'} fa-heart`;
-  miniLikeBtn.querySelector('i').className = iconClass;
   miniLikeBtn.classList.toggle('liked', liked);
-  menuLikeBtn.querySelector('i').className = iconClass;
-  menuLikeBtn.querySelector('span').textContent = liked ? 'Retirer des favoris' : 'Ajouter aux favoris';
+  miniLikeBtn.querySelector('.ms').classList.toggle('ms-fill', liked);
+  menuLikeBtn.querySelector('.ms').textContent = liked ? 'heart_broken' : 'favorite';
+  menuLikeBtn.querySelector('.menu-label').textContent = liked ? 'Retirer des favoris' : 'Ajouter aux favoris';
 }
 
 menuAddToPlaylistBtn.addEventListener('click', () => {
@@ -371,7 +437,7 @@ menuAddToPlaylistBtn.addEventListener('click', () => {
   const existingPlaylists = Object.keys(window.userPlaylists).filter(pl => pl !== 'Sons Likés');
 
   if (existingPlaylists.length === 0) {
-    showToast('Crée d\'abord une playlist dans l\'onglet Playlists', { icon: 'fa-circle-info' });
+    showToast('Crée d\'abord une playlist dans l\'onglet Playlists', { icon: 'info' });
     playerMenuPanel.classList.remove('active');
     return;
   }
@@ -383,7 +449,7 @@ menuAddToPlaylistBtn.addEventListener('click', () => {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #282828;
+    background: #212121;
     border-radius: 8px;
     padding: 20px;
     z-index: 10000;
@@ -406,7 +472,7 @@ menuAddToPlaylistBtn.addEventListener('click', () => {
       width: 100%;
       padding: 12px;
       margin-bottom: 8px;
-      background: #404040;
+      background: #303030;
       color: white;
       border: none;
       border-radius: 4px;
@@ -415,26 +481,27 @@ menuAddToPlaylistBtn.addEventListener('click', () => {
       font-size: 14px;
       transition: background 0.2s;
     `;
-    btn.onmouseover = () => btn.style.background = '#1DB954';
-    btn.onmouseout = () => btn.style.background = '#404040';
+    btn.onmouseover = () => btn.style.background = '#3f3f3f';
+    btn.onmouseout = () => btn.style.background = '#303030';
     btn.onclick = () => {
       const alreadyExists = window.userPlaylists[plName].some(
         song => song.title === t.title && song.artist === t.artist
       );
 
       if (alreadyExists) {
-        showToast(`Déjà dans "${plName}"`, { icon: 'fa-circle-info' });
+        showToast(`Déjà dans "${plName}"`, { icon: 'info' });
       } else {
         window.userPlaylists[plName].push({
           title: t.title,
           artist: t.artist,
           src: t.src,
           thumb: t.thumb || '',
-          duration: t.duration || '0:00'
+          duration: t.duration || '0:00',
+          addedAt: Date.now()
         });
         window.savePlaylists();
         window.renderPlaylists();
-        showToast(`Ajouté à "${plName}"`, { icon: 'fa-plus' });
+        showToast(`Ajouté à "${plName}"`, { icon: 'playlist_add' });
       }
 
       document.body.removeChild(playlistMenu);
@@ -491,17 +558,23 @@ window.audio.addEventListener('timeupdate', () => {
   const pct = (window.audio.currentTime / window.audio.duration) * 100;
   fullProgress.value = pct;
 
-  const progressFill = `linear-gradient(to right, #1DB954 0%, #1DB954 ${pct}%, #404040 ${pct}%, #404040 100%)`;
-  fullProgress.style.background = progressFill;
+  // Le remplissage rouge est dessiné en CSS à partir de --pct
+  fullProgress.style.setProperty('--pct', `${pct}%`);
+  if (miniProgress) {
+    miniProgress.value = pct;
+    miniProgress.parentElement.style.setProperty('--pct', `${pct}%`);
+  }
 
   fullCurrentTime.textContent = formatTime(window.audio.currentTime);
   fullDurationTime.textContent = formatTime(window.audio.duration);
+  if (miniTime) miniTime.textContent = `${formatTime(window.audio.currentTime)} / ${formatTime(window.audio.duration)}`;
 });
 
 fullProgress.addEventListener('input', () => {
   if (!window.audio.duration) return;
   const pct = fullProgress.value;
   window.audio.currentTime = (pct / 100) * window.audio.duration;
+  fullProgress.style.setProperty('--pct', `${pct}%`);
 });
 
 window.audio.addEventListener('play', () => {
@@ -525,7 +598,7 @@ window.audio.addEventListener('error', () => {
   if (!window.audio.getAttribute('src')) return;
   isPlaying = false;
   updatePlayPauseButtons();
-  showToast('Ce titre est indisponible pour le moment', { icon: 'fa-triangle-exclamation', duration: 3500 });
+  showToast('Ce titre est indisponible pour le moment', { icon: 'warning', duration: 3500 });
 });
 
 window.audio.addEventListener('ended', () => {

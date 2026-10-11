@@ -1,0 +1,226 @@
+/* =====================================================================
+   ÉCRAN PLAYLIST — reproduction de l'écran « Titres » de Shazam
+   + Bibliothèque en liste
+   ===================================================================== */
+
+/* L'écran va jusqu'aux bords, comme dans Shazam */
+#page-liked, #page-playlist { max-width: none !important; margin: 0 -32px; }
+body.pl-mode .pages { padding-top: 0; }
+body.pl-mode .main, body.pl-mode .pages { background: #121212; }
+
+.pl-screen {
+  --pl-bg: #121212;
+  --pl-head: #1c1c1e;
+  --pl-line: #2a2a2c;
+  --pl-gray: #8a898e;
+  --pl-pill: #444444;
+  position: relative;
+  min-height: 100%;
+  background: var(--pl-bg);
+  color: #fff;
+  font-family: 'Google Sans Flex', 'Roboto', -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+.pl-screen button { font-family: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; text-align: left; }
+.pl-screen a { color: inherit; text-decoration: none; }
+.pl-screen .ms { font-size: 24px; }
+
+/* Barre du haut : ←, (titre au défilement), 🔍, tri */
+.pl-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 64px;
+  padding: 0 4px;
+  background: var(--pl-head);
+}
+.pl-icon { width: 48px; height: 48px; border-radius: 50%; display: inline-flex !important; align-items: center; justify-content: center !important; flex-shrink: 0; }
+.pl-icon:hover { background: rgba(255, 255, 255, .08) !important; }
+.pl-bar-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0 0 0 20px;
+  font-size: 21px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.pl-bar.scrolled .pl-bar-title { opacity: 1; }
+
+/* En-tête : grand titre, nombre, puces */
+.pl-head { padding: 4px 16px 18px; background: var(--pl-head); }
+.pl-h1 { margin: 0; font-size: 38px; font-weight: 700; line-height: 1.1; letter-spacing: -.01em; }
+.pl-count { margin: 8px 0 22px; font-size: 16px; font-weight: 500; }
+.pl-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  margin: -8px 0 16px;
+  border-radius: 10px;
+  background: #2c2c2e;
+}
+.pl-search[hidden] { display: none; }
+.pl-search .ms { color: var(--pl-gray); font-size: 22px; }
+.pl-search input { flex: 1; min-width: 0; background: none; border: none; outline: none; color: #fff; font: inherit; font-size: 16px; }
+
+.pl-chips { display: flex; gap: 9px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+.pl-chips::-webkit-scrollbar { display: none; }
+.pl-chip {
+  flex-shrink: 0;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  padding: 0 18px 0 8px !important;
+  border-radius: 10px;
+  background: #2c2c2e !important;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pl-chip img { width: 34px; height: 34px; border-radius: 5px; object-fit: cover; }
+.pl-chip.on { background: #fff !important; color: #121212 !important; }
+.pl-chip-view { padding: 0 10px 0 14px !important; gap: 4px; }
+.pl-chip-view .ms { font-size: 24px; }
+.pl-delete { display: inline-flex !important; align-items: center; gap: 6px; margin-top: 16px; color: var(--pl-gray) !important; font-size: 14px; }
+.pl-delete .ms { font-size: 18px; }
+.pl-delete:hover { color: #ff6b5b !important; }
+
+/* Groupes par date */
+.pl-body { padding: 0 16px 24px; }
+.pl-group-title {
+  margin: 0;
+  padding: 22px 0 14px;
+  border-bottom: 1px solid var(--pl-line);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Ligne d'un titre */
+.pl-row { position: relative; display: flex; gap: 16px; padding: 16px 0; }
+.pl-row + .pl-row::before { content: ''; position: absolute; top: 0; left: 0; right: 0; border-top: 1px solid var(--pl-line); }
+.pl-cover { position: relative; display: block !important; width: 112px; height: 112px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: #2c2c2e !important; }
+.pl-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pl-cover-empty { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 34px; color: var(--pl-gray); }
+.pl-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pl-play .ms { font-size: 30px; color: #fff; }
+.pl-cover:hover .pl-play { background: rgba(0, 0, 0, .75); }
+.pl-text { flex: 1; min-width: 0; display: flex; flex-direction: column; padding-top: 6px; }
+.pl-title { font-size: 17px !important; font-weight: 700; line-height: 1.3; }
+.pl-title:hover { text-decoration: underline; }
+.pl-artist { margin-top: 2px; font-size: 16px; color: var(--pl-gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-date { margin-top: 8px; font-size: 14px; color: var(--pl-gray); }
+.pl-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; }
+.pl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  padding: 0 10px 0 8px;
+  border-radius: 999px;
+  background: var(--pl-pill);
+  font-size: 15px;
+  font-weight: 500;
+}
+.pl-badge .ev-glyph { width: 14px; height: 14px; }
+.pl-more { width: 40px; height: 40px; margin-right: -10px; border-radius: 50%; display: inline-flex !important; align-items: center; justify-content: center !important; }
+.pl-more:hover { background: rgba(255, 255, 255, .08) !important; }
+
+/* Titre en cours de lecture */
+.pl-row.playing .pl-title { color: #ff6b5b; }
+
+/* Vue en grille (bouton d'affichage) */
+.pl-screen.is-grid .pl-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 16px; }
+.pl-screen.is-grid .pl-group-title { grid-column: 1 / -1; }
+.pl-screen.is-grid .pl-row { flex-direction: column; gap: 10px; }
+.pl-screen.is-grid .pl-row + .pl-row::before { display: none; }
+.pl-screen.is-grid .pl-cover { width: 100%; height: auto; aspect-ratio: 1; }
+.pl-screen.is-grid .pl-date { display: none; }
+.pl-screen.is-grid .pl-text { padding-top: 0; }
+.pl-screen.is-grid .pl-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.pl-empty { padding: 32px 0; color: var(--pl-gray); font-size: 16px; text-align: center; }
+
+/* Menus (tri, ⋮) */
+.pl-menu {
+  position: absolute;
+  z-index: 30;
+  min-width: 230px;
+  padding: 6px 0;
+  border-radius: 12px;
+  background: #2c2c2e;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .55);
+}
+.pl-menu[hidden] { display: none; }
+.pl-menu button { display: flex !important; align-items: center; gap: 14px; width: 100%; padding: 12px 16px !important; font-size: 15px; }
+.pl-menu button:hover { background: rgba(255, 255, 255, .06) !important; }
+.pl-menu .ms { width: 22px; font-size: 20px; color: var(--pl-gray); }
+
+/* ---------- Bibliothèque : liste des playlists ---------- */
+.playlists-list { display: flex !important; flex-direction: column; gap: 2px; }
+.lib-row { display: flex; align-items: center; gap: 14px; padding: 8px; border-radius: 8px; color: #fff; text-decoration: none; }
+.lib-row:hover { background: rgba(255, 255, 255, .06); }
+.lib-cover { width: 64px; height: 64px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: #2c2c2e; display: flex; align-items: center; justify-content: center; }
+.lib-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lib-mosaic { display: grid; grid-template-columns: 1fr 1fr; }
+.lib-liked { background: linear-gradient(135deg, #ff4e6a, #8e2de2); }
+.lib-liked .ms { font-size: 30px; color: #fff; }
+.lib-letter { font-size: 26px; font-weight: 700; color: #e74b3b; }
+.lib-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.lib-text strong { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lib-text small { font-size: 13px; color: rgba(255, 255, 255, .6); }
+.lib-chevron { color: rgba(255, 255, 255, .5); }
+#playlistTracks { display: none; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 900px) {
+  #page-liked, #page-playlist { margin: 0 -16px; }
+  body.pl-mode .appbar { display: none; }
+  .pl-bar { height: calc(64px + env(safe-area-inset-top)); padding-top: env(safe-area-inset-top); }
+}
+@media (max-width: 400px) {
+  .pl-cover { width: 104px; height: 104px; }
+  .pl-h1 { font-size: 34px; }
+}
+
+/* ---------- Ordinateur : colonne centrée ---------- */
+@media (min-width: 901px) {
+  .pl-head, .pl-body { padding-left: max(16px, calc((100% - 760px) / 2)); padding-right: max(16px, calc((100% - 760px) / 2)); }
+  .pl-chips { margin: 0; padding: 0; }
+}
+
+/* =====================================================================
+   Noms de playlist : style Deezer (police « Deezer Sans », propriétaire)
+   → Inter Tight Black, la plus proche en libre : très grasse, serrée.
+   ===================================================================== */
+.pl-h1,
+.pl-bar-title,
+.lib-text strong,
+.sidebar-playlist strong {
+  font-family: 'Inter Tight', 'Roboto', sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.035em;
+}
+.pl-h1 { font-size: 44px; line-height: .92; }
+.lib-text strong { font-size: 17px; letter-spacing: -0.02em; }
+.sidebar-playlist strong { letter-spacing: -0.01em; }
+@media (max-width: 400px) { .pl-h1 { font-size: 38px; } }
